@@ -1,0 +1,2778 @@
+ 
+ 
+<!DOCTYPE html>
+ 
+<html lang="vi">
+ 
+<head>
+ 
+<meta charset="UTF-8">
+ 
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Noto+Serif:wght@600;700;800&display=swap" rel="stylesheet">
+ 
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+ 
+<title>BẢN ĐỒ SỐ HÓA KÝ ỨC LỊCH SỬ ĐẮK LẮK</title>
+ 
+<style>
+ 
+*{box-sizing:border-box;margin:0;padding:0}
+ 
+:root{--brown:#6b4025;--dark:#5b351f;--cream:#f7efe4;--text:#332b23}
+ 
+body{font-family:Arial,Helvetica,sans-serif;background:linear-gradient(rgba(255,248,235,.45),rgba(255,248,235,.68)),url("images/taynguyen2.jpg") center/cover fixed;color:var(--text);line-height:1.6}
+ 
+header{background:linear-gradient(rgba(45,30,18,.38),rgba(50,34,21,.68)),url("images/nentaynguyen(tren).jpg") center/cover;color:white;padding:48px 20px;text-align:center;box-shadow:0 3px 10px #0003}
+ 
+header h1{font-size:clamp(22px,3vw,34px);margin-bottom:8px}
+ 
+nav{background:#7a4b2a;display:flex;justify-content:center;gap:10px;padding:10px;flex-wrap:wrap}
+ 
+button,.button-link{border:0;border-radius:8px;padding:10px 15px;cursor:pointer;font-size:15px;text-decoration:none;display:inline-block}
+ 
+nav button{background:transparent;color:white;padding:10px 18px}
+ 
+nav button:hover{background:#ffffff26}
+ 
+.container{max-width:1200px;margin:auto;padding:24px}
+ 
+#map{width:100%;height:570px;background:#e7e1d7;border-radius:0 0 14px 14px}
+ 
+.map-heading{background:#fff;padding:14px 20px;color:var(--dark);font-weight:bold}
+ 
+.intro,.form-section,.comments{background:white;padding:24px;border-radius:15px;margin:24px 0;box-shadow:0 3px 12px #00000012}
+ 
+h2.section-title{color:#fff;margin:26px 0 16px;text-shadow:0 2px 5px #332}
+ 
+.intro h2,.form-section h2,.comments h2{color:var(--dark);margin-bottom:12px}
+ 
+.locations{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:18px}
+ 
+.location-card{background:white;border-radius:15px;padding:20px;box-shadow:0 3px 12px #00000016;display:flex;flex-direction:column;gap:10px}
+ 
+.location-card h3{color:var(--dark);line-height:1.35}
+ 
+.location-card p{flex:1}
+ 
+.btn-main{background:var(--brown);color:white}
+ 
+.btn-main:hover{background:#4f2d19}
+ 
+.btn-outline{border:1px solid var(--brown);color:var(--brown);background:white}
+ 
+.card-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:5px}
+ 
+.card-actions button,.card-actions a{font-size:14px}
+ 
+.modal{display:none;position:fixed;z-index:9999;inset:0;background:#000a;overflow-y:auto;padding:20px}
+ 
+.modal-content{background:white;width:min(100%,1000px);margin:20px auto;border-radius:18px;padding:28px;position:relative}
+ 
+.close{position:absolute;right:18px;top:10px;font-size:32px;cursor:pointer;color:#555;background:none;padding:0}
+ 
+.modal-content h2{color:var(--dark);padding-right:35px;margin-bottom:12px}
+ 
+.description{white-space:pre-line;line-height:1.8;margin:16px 0}
+ 
+.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:12px}
+ 
+.gallery img{width:100%;height:200px;object-fit:cover;border-radius:10px}
+ 
+.video-container{margin-top:20px}
+ 
+.video-container video{width:100%;max-height:460px;background:#111;border-radius:12px}
+.video-container iframe{display:block;width:100%;aspect-ratio:16/9;max-height:460px;border:0;border-radius:12px;background:#111}
+ 
+.info-box{background:#f4eee7;padding:16px;border-radius:10px;margin-top:20px;overflow-wrap:anywhere}
+ 
+.heritage-audio{margin-top:22px;padding:20px;border:1px solid #dfd2bc;border-radius:14px;background:#fbf7ef}
+ 
+.heritage-audio h3{color:#285440;margin-bottom:8px}
+ 
+.heritage-audio-intro{color:#65594c;margin-bottom:14px}
+ 
+.audio-item{background:#fff;padding:15px;border:1px solid #e8dfd2;border-radius:11px;margin-top:12px}
+ 
+.audio-item h4{color:#6b4025;margin-bottom:7px}
+ 
+.audio-item audio{display:block;width:100%;max-width:650px;margin:10px 0}
+ 
+.audio-transcript{margin-top:10px;line-height:1.75;white-space:pre-line}
+ 
+.audio-source{font-size:13px;color:#6b756e;line-height:1.7;margin-top:8px;overflow-wrap:anywhere}
+ 
+.audio-empty{padding:13px;background:#fff;border-radius:9px;color:#65594c;border:1px dashed #cdbda5}
+ 
+.form-group{margin:16px 0}
+ 
+.form-group label{display:block;font-weight:bold;margin-bottom:6px}
+ 
+.form-group input,.form-group textarea,.form-group select,.comments input,.comments textarea{width:100%;padding:12px;border:1px solid #ccc;border-radius:8px;font:inherit}
+ 
+.form-group textarea,.comments textarea{min-height:110px}
+ 
+.comment{padding:14px 0;border-bottom:1px solid #ddd}
+ 
+.comment:last-child{border-bottom:0}
+ 
+footer{background:var(--dark);color:white;text-align:center;padding:24px;margin-top:35px}
+ 
+.map-note{background:#fffaf2;padding:12px 18px;font-size:14px}
+ 
+@media(max-width:600px){#map{height:430px}.container{padding:14px}.modal-content{padding:20px}.card-actions>*{flex:1;text-align:center}}
+ 
+/* Workspace bản đồ GIS - giao diện lấy cảm hứng từ cổng bản đồ số, không sao chép thương hiệu */
+ 
+.gis-shell{background:#f5f7f6;border:1px solid #d9e1dc;border-radius:16px;overflow:hidden;box-shadow:0 8px 28px #20352b12}
+ 
+.gis-topbar{background:#183e32;color:#fff;padding:15px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+ 
+.gis-topbar strong{font-size:17px}.gis-topbar small{color:#d6e6dd}
+ 
+.gis-tools{display:grid;grid-template-columns:minmax(240px,300px) minmax(0,1fr);min-height:600px}
+ 
+.gis-sidebar{background:#fff;border-right:1px solid #dce4df;padding:16px;overflow:auto;max-height:720px}
+ 
+.gis-sidebar h3{color:#204b3c;font-size:15px;margin:14px 0 8px}
+ 
+.gis-search{width:100%;padding:11px;border:1px solid #ccd8d0;border-radius:8px;font:inherit}
+ 
+.gis-filter{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:14px}
+ 
+.gis-filter input{accent-color:#28684d}
+ 
+.gis-stat{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+ 
+.gis-stat div{background:#f0f5f1;padding:10px;border-radius:8px}.gis-stat b{display:block;color:#214d3c;font-size:20px}
+ 
+.gis-map-area{position:relative;min-width:0}
+ 
+#map{width:100%;height:600px;background:#e3e9e4;border-radius:0}
+ 
+.map-toolbar{display:flex;gap:8px;flex-wrap:wrap;padding:10px;background:#fff;border-bottom:1px solid #dce4df}
+ 
+.map-toolbar button{background:#edf3ef;color:#214d3c;border:1px solid #cddbd1;padding:8px 10px;font-size:13px}
+ 
+.map-toolbar button.active{background:#214d3c;color:white}
+ 
+.map-status{padding:8px 12px;background:#f8fbf9;color:#566b60;font-size:12px}
+ 
+.leaflet-popup-content-wrapper{border-radius:10px}
+ 
+.gis-place-list{display:grid;gap:7px;margin-top:8px}
+ 
+.gis-place{border:1px solid #e0e7e2;border-radius:9px;padding:9px;background:#fff;text-align:left;color:#26382e;cursor:pointer}
+ 
+.gis-place:hover{border-color:#6e9b7f;background:#f5faf6}
+ 
+.ai-panel{background:#fff;border:1px solid #dce4df;border-radius:14px;overflow:hidden;margin:24px 0;box-shadow:0 4px 16px #0000000b}
+ 
+.ai-head{background:#1b4033;color:#fff;padding:15px 18px}.ai-head p{font-size:13px;color:#dcebe2}
+ 
+.ai-messages{padding:16px;display:grid;gap:10px;max-height:340px;overflow:auto;background:#f7faf8}
+ 
+.ai-msg{padding:11px 13px;border-radius:12px;max-width:92%;white-space:pre-wrap;font-size:14px}
+ 
+.ai-msg.bot{background:#fff;border:1px solid #dfe8e2;justify-self:start}
+ 
+.ai-msg.user{background:#dcefe3;justify-self:end}
+ 
+.ai-compose{display:flex;gap:8px;padding:12px}.ai-compose input{flex:1;min-width:0;padding:12px;border:1px solid #cbd8cf;border-radius:9px;font:inherit}
+ 
+.feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+ 
+.feature-card{background:white;border:1px solid #e2e8e3;border-radius:12px;padding:16px}
+ 
+.source-note{font-size:12px;color:#6b756e;margin-top:7px}
+ 
+.media-slots{display:grid;gap:8px;margin-top:14px}
+ 
+.media-slots label{display:block;font-size:13px;font-weight:bold;color:#5b351f}
+ 
+.media-slots input{display:block;width:100%;font:inherit;font-size:12px;margin-top:5px;padding:7px;background:#fff;border:1px solid #d8cbbb;border-radius:7px}
+ 
+.media-preview{min-height:54px;padding:9px;border:1px dashed #cdbda5;border-radius:8px;background:#fbf7ef;color:#756b5f;font-size:12px;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
+ 
+.media-preview img{max-width:100%;max-height:180px;border-radius:7px}.media-preview video{width:100%;max-height:180px;background:#111;border-radius:7px}.media-preview audio{width:100%}
+ 
+@media(max-width:800px){.gis-tools{grid-template-columns:1fr}.gis-sidebar{max-height:none;border-right:0;border-bottom:1px solid #dce4df}#map{height:470px}.gis-topbar{align-items:flex-start}}
+ 
+ 
+/* ===== Cửa sổ khám phá dạng thu gọn ===== */
+.modal-summary{color:#6b756e;font-size:14px;margin:-4px 0 10px}
+.modal-intro{border-left:4px solid var(--brown);background:#faf5ec;padding:10px 14px;border-radius:0 10px 10px 0;line-height:1.7;margin:12px 0}
+.acc-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:14px 0 8px}
+.acc-tools .button-link,.acc-tools button{font-size:14px}
+.acc{border:1px solid #e3d8c6;border-radius:12px;background:#fff;margin-top:8px;overflow:hidden}
+.acc>summary{cursor:pointer;list-style:none;padding:13px 16px;font-weight:bold;color:var(--dark);display:flex;align-items:center;gap:8px;background:#fbf7ef}
+.acc>summary::-webkit-details-marker{display:none}
+.acc>summary::after{content:"＋";margin-left:auto;font-size:18px;color:var(--brown)}
+.acc[open]>summary::after{content:"－"}
+.acc[open]>summary{border-bottom:1px solid #eadfcc}
+.acc>summary:hover{background:#f4ecdc}
+.acc-body{padding:14px 16px;line-height:1.8}
+.acc .muted{font-weight:normal;color:#8a7e70;font-size:13px}
+.acc-body .comments{padding:0;margin:0;box-shadow:none;background:none;border-radius:0}
+.acc-body .info-box{margin-top:0}
+.src-list{margin:6px 0 0 20px;font-size:14px}
+.gis-suggest-item{padding:10px 12px;cursor:pointer;border-bottom:1px solid #eee;color:#333;background:#fff}
+.gis-suggest-item:hover{background:#f8f9fa}
+ 
+/* ===== Xem ảnh phóng to ===== */
+.gallery img{cursor:zoom-in;transition:transform .15s}
+.gallery img:hover{transform:scale(1.03)}
+.lightbox{display:none;position:fixed;inset:0;z-index:20000;background:rgba(0,0,0,.92);align-items:center;justify-content:center;padding:20px}
+.lightbox img{max-width:min(94vw,1400px);max-height:88vh;object-fit:contain;border-radius:8px}
+.lb-close{position:absolute;top:12px;right:18px;font-size:38px;color:#fff;background:none;padding:0 8px;line-height:1}
+.lb-nav{position:absolute;top:50%;transform:translateY(-50%);font-size:46px;color:#fff;background:#ffffff22;border-radius:50%;width:52px;height:52px;padding:0;line-height:1;display:flex;align-items:center;justify-content:center}
+.lb-nav:hover{background:#ffffff44}
+.lb-prev{left:16px}.lb-next{right:16px}
+.lb-count{position:absolute;bottom:14px;left:0;right:0;text-align:center;color:#ddd;font-size:14px}
+.modal-h3{color:#5b351f;margin:22px 0 10px}
+.modal-h3 .muted,.heritage-audio .muted{font-weight:normal;color:#8a7e70;font-size:13px}
+</style>
+ 
+ 
+<style id="tay-nguyen-theme">
+/* ===== GIAO DIỆN TÂY NGUYÊN – LỊCH SỬ ===== */
+:root{
+  --brown:#8a2f14; --dark:#3a1c0f; --cream:#f6ecd9; --text:#2e241c;
+  --gold:#c8923a; --gold2:#e6bf72; --forest:#23402e; --basalt:#6e2410; --paper:#fffaf0; --line:#e3d2b0;
+  --serif:'Noto Serif','Times New Roman',Georgia,serif;
+  --sans:'Be Vietnam Pro',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+  --tho-cam:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='14' viewBox='0 0 40 14'><rect width='40' height='14' fill='%233a1c0f'/><path d='M0 7 L10 2 L20 7 L10 12Z' fill='%23b5381c'/><path d='M20 7 L30 2 L40 7 L30 12Z' fill='%23b5381c'/><path d='M10 7 L15 4.5 L20 7 L15 9.5Z' fill='%23e6bf72'/><path d='M30 7 L35 4.5 L40 7 L35 9.5Z' fill='%23e6bf72'/><rect width='40' height='1.2' fill='%23e6bf72'/><rect y='12.8' width='40' height='1.2' fill='%23e6bf72'/></svg>");
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);font-size:16px;color:var(--text);line-height:1.7;
+  background:linear-gradient(rgba(255,248,235,.45),rgba(255,248,235,.68)),url("images/taynguyen2.jpg") center/cover fixed,#f3e7d0}
+h1,h2,h3,h4{font-family:var(--serif);letter-spacing:.2px}
+section[id],#map{scroll-margin-top:72px}
+ 
+/* Header */
+header{position:relative;padding:20px 20px 30px;
+  background:linear-gradient(rgba(45,30,18,.38),rgba(50,34,21,.68)),url("images/nentaynguyen(tren).jpg") center/cover,#3a1c0f;
+  border-bottom:0;box-shadow:none}
+header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:14px;background:var(--tho-cam) repeat-x;background-size:40px 14px}
+.hero-eyebrow{font-size:11.5px;letter-spacing:3px;color:var(--gold2);font-weight:600;margin-bottom:4px;text-transform:uppercase}
+header h1{font-family:var(--serif);font-weight:800;font-size:clamp(26px,3.6vw,42px);letter-spacing:4px;color:#fff;text-shadow:0 3px 14px #000a;margin-bottom:2px;line-height:1.2}
+.hero-orn{display:none}
+.hero-eyebrow{line-height:1.3}
+header p.hero-sub{line-height:1.45}
+header p.hero-sub{max-width:760px;margin:4px auto 0;font-size:clamp(14px,1.5vw,16px);color:#f4e6cf;text-shadow:0 1px 6px #000a}
+.hero-chips{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+.hero-chips span{background:rgba(255,255,255,.12);border:1px solid rgba(230,191,114,.55);color:#fbefd9;padding:3px 11px;border-radius:999px;font-size:12.5px;backdrop-filter:blur(3px)}
+ 
+/* Thanh điều hướng */
+nav{background:linear-gradient(180deg,#4a2112,#3a1c0f)!important;border-bottom:3px solid var(--gold);box-shadow:0 4px 14px #0004;padding:2px 10px;gap:2px}
+nav button{font-family:var(--sans);font-weight:600;font-size:14.5px;letter-spacing:.2px;color:#f6e6c8;border-radius:6px;padding:9px 14px;position:relative;transition:.2s}
+nav button::after{content:"";position:absolute;left:14px;right:14px;bottom:3px;height:2px;background:var(--gold2);transform:scaleX(0);transition:transform .25s}
+nav button:hover{background:rgba(255,255,255,.08);color:#fff}
+nav button:hover::after{transform:scaleX(1)}
+ 
+/* Khung bản đồ */
+.gis-shell{border:2px solid var(--gold);border-radius:16px;background:var(--paper);box-shadow:0 12px 34px #3a1c0f33}
+.gis-topbar{background:linear-gradient(100deg,#3a1c0f,#6e2410 70%,#8a2f14);border-bottom:4px solid var(--gold);padding:16px 20px}
+.gis-topbar strong{font-family:var(--serif);font-size:18px;letter-spacing:.5px}
+.gis-topbar small{color:#f0d9b4}
+.gis-sidebar{background:linear-gradient(#fffaf0,#faf0dc);border-right:1px solid var(--line)}
+.gis-sidebar h3{font-family:var(--serif);color:var(--basalt);font-size:15px;margin:18px 0 8px;padding-bottom:5px;border-bottom:1px dashed var(--gold)}
+.gis-search{border:1.5px solid #d8c196;background:#fff;border-radius:10px;font-family:var(--sans)}
+.gis-search:focus{outline:0;border-color:var(--brown);box-shadow:0 0 0 3px rgba(138,47,20,.15)}
+.gis-filter input{accent-color:var(--brown)}
+.gis-stat div{background:#f6e7c9;border:1px solid var(--line);border-radius:10px}
+.gis-stat b{font-family:var(--serif);color:var(--basalt);font-size:24px}
+.gis-place{border:1px solid var(--line);border-left:4px solid var(--gold);background:#fff;border-radius:8px;color:var(--text);transition:.2s;font-family:var(--sans)}
+.gis-place:hover{border-color:var(--brown);border-left-color:var(--brown);background:#fff6e6;transform:translateX(2px)}
+.map-toolbar{background:#f6e7c9;border-bottom:1px solid var(--line)}
+.map-toolbar button{background:#fffaf0;color:var(--basalt);border:1px solid #d8c196;font-family:var(--sans);font-weight:600;border-radius:8px}
+.map-toolbar button:hover,.map-toolbar button.active{background:var(--brown);color:#fff;border-color:var(--brown)}
+.map-status{background:#fbf1dc;color:#6b5a45;font-size:13px;padding:10px 14px;border-top:1px solid var(--line)}
+.lg{display:inline-flex;align-items:center;gap:5px;margin:4px 12px 0 0;font-weight:600;color:#4a3a2a}
+.lg i{width:12px;height:12px;border-radius:50%;display:inline-block;border:2px solid #fff;box-shadow:0 0 0 1px #0003}
+.leaflet-popup-content-wrapper{border-radius:12px;border-top:4px solid var(--gold);font-family:var(--sans)}
+.leaflet-popup-content strong{font-family:var(--serif);color:var(--basalt)}
+.leaflet-popup-content button{background:var(--brown)!important;font-family:var(--sans);font-weight:600}
+.leaflet-popup-content a{color:var(--forest);font-weight:600}
+ 
+/* Ghim bản đồ */
+.pin-wrap{background:none!important;border:0!important}
+.pin{width:38px;height:38px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 4px 10px #0006;display:flex;align-items:center;justify-content:center;transition:transform .2s}
+.pin span{transform:rotate(45deg);font-size:17px;line-height:1}
+.pin-wrap:hover .pin{transform:rotate(-45deg) scale(1.12)}
+.pin-history{background:#9b2d14}.pin-landscape{background:#2f6a45}.pin-arch{background:#b8791a}.pin-edu{background:#2b5d86}
+ 
+/* Khối nội dung */
+.intro,.form-section,.comments{background:var(--paper);border:1px solid var(--line);border-radius:14px;box-shadow:0 6px 22px #3a1c0f1a;position:relative}
+.intro,.form-section{padding-top:30px}
+.intro::before,.form-section::before{content:"";position:absolute;left:0;right:0;top:0;height:8px;border-radius:14px 14px 0 0;background:var(--tho-cam) repeat-x;background-size:28px 8px}
+.intro h2,.form-section h2,.comments h2{font-family:var(--serif);color:var(--basalt);font-size:clamp(21px,2.6vw,28px);margin-bottom:14px;padding-bottom:10px;position:relative}
+.intro h2::after,.form-section h2::after{content:"";position:absolute;left:0;bottom:0;width:90px;height:3px;background:linear-gradient(90deg,var(--gold),transparent);border-radius:3px}
+.intro p{font-size:16.5px;text-align:justify}
+.intro b{color:var(--basalt)}
+ 
+/* AI */
+.ai-panel{border:1px solid var(--line);border-radius:14px;box-shadow:0 6px 22px #3a1c0f1a}
+.ai-head{background:linear-gradient(100deg,var(--forest),#2f5a3f);border-bottom:4px solid var(--gold)}
+.ai-head strong{font-family:var(--serif);font-size:18px}
+.ai-messages{background:#fbf3e0}
+.ai-msg.bot{background:#fff;border:1px solid var(--line);border-left:4px solid var(--gold)}
+.ai-msg.user{background:#f3d9a8;color:#3a1c0f}
+.ai-compose input{border:1.5px solid #d8c196;border-radius:10px;font-family:var(--sans)}
+.ai-compose input:focus{outline:0;border-color:var(--brown)}
+ 
+/* Thẻ di sản sống */
+.feature-card{background:#fff;border:1px solid var(--line);border-top:5px solid var(--brown);border-radius:12px;padding:20px;transition:.25s;box-shadow:0 3px 12px #3a1c0f12}
+.feature-card:hover{transform:translateY(-4px);box-shadow:0 12px 26px #3a1c0f2a;border-top-color:var(--gold)}
+.feature-card>strong{display:block;font-family:var(--serif);font-size:18px;color:var(--basalt);margin-bottom:8px}
+.feature-card p{font-size:15px;color:#4a3d31}
+.media-slots label{color:var(--basalt)}
+.media-preview{border:1.5px dashed #cdb48a;background:#fbf3e0}
+ 
+/* Nút */
+button,.button-link{font-family:var(--sans);font-weight:600}
+.btn-main{background:linear-gradient(180deg,#a03818,#7a2810);color:#fff;border-radius:10px;box-shadow:0 3px 8px #7a281040;transition:.2s}
+.btn-main:hover{background:linear-gradient(180deg,#b4431f,#8a2f14);transform:translateY(-1px);box-shadow:0 6px 14px #7a281055}
+.btn-outline{border:1.5px solid var(--brown);color:var(--brown);background:#fff;border-radius:10px}
+.btn-outline:hover{background:#fff1da}
+ 
+/* Biểu mẫu */
+.form-group label{color:var(--basalt)}
+.form-group input,.form-group textarea,.form-group select,.comments input,.comments textarea{border:1.5px solid #d8c196;background:#fffdf8;border-radius:10px;font-family:var(--sans)}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus,.comments input:focus,.comments textarea:focus{outline:0;border-color:var(--brown);box-shadow:0 0 0 3px rgba(138,47,20,.14)}
+ 
+/* Cửa sổ hồ sơ */
+.modal{background:rgba(30,14,6,.82);backdrop-filter:blur(2px)}
+.modal-content{background:var(--paper);border:2px solid var(--gold);padding:34px 30px 28px;box-shadow:0 20px 60px #000a}
+.modal-content::before{content:"";position:absolute;left:0;right:0;top:0;height:10px;border-radius:16px 16px 0 0;background:var(--tho-cam) repeat-x;background-size:30px 10px}
+.modal-content h2{font-family:var(--serif);color:var(--basalt);font-size:clamp(22px,3vw,30px);line-height:1.3}
+.close{color:var(--basalt)}
+.modal-summary{color:#6b5a45;font-weight:500}
+.modal-intro{border-left:5px solid var(--gold);background:#fbf1dc;font-size:16px}
+.modal-h3{font-family:var(--serif);color:var(--basalt);border-bottom:1px dashed var(--gold);padding-bottom:6px}
+.acc{border:1px solid var(--line);border-radius:12px;background:#fff}
+.acc>summary{background:#fbf1dc;color:var(--basalt);font-family:var(--serif);font-size:16px}
+.acc>summary:hover{background:#f6e4bf}
+.acc[open]>summary{border-bottom:1px solid var(--line)}
+.acc-body{font-size:15.5px}
+.heritage-audio{background:#fbf3e0;border:1px solid #dcc79c}
+.heritage-audio h3{color:var(--forest);font-family:var(--serif)}
+.info-box{background:#f8ecd3;border:1px solid var(--line)}
+.gallery img{border:3px solid #fff;box-shadow:0 3px 10px #3a1c0f33;border-radius:8px}
+.comment{border-bottom:1px dashed #d8c196}
+.src-list a{color:var(--forest)}
+ 
+/* Chân trang */
+footer.site-footer{background:linear-gradient(#3a1c0f,#2a1309);text-align:left;padding:0;margin-top:50px;position:relative}
+footer.site-footer::before{content:"";display:block;height:14px;background:var(--tho-cam) repeat-x;background-size:40px 14px}
+.site-footer h4{font-family:var(--serif);color:var(--gold2);border-bottom:1px solid #e6bf7255}
+.site-footer a{color:#efd9b5}
+.footer-bottom{background:#1f0e06;color:#cdb592}
+ 
+@media(max-width:600px){header{padding:16px 16px 26px}.hero-chips{display:none}.hero-eyebrow{letter-spacing:1.5px}nav button{padding:9px 11px;font-size:13.5px}.intro p{text-align:left}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+/* ===== Bình luận có hình ảnh ===== */
+.cmt-attach{margin-top:10px;display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.cmt-attach-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border:1.5px solid var(--brown);color:var(--brown);border-radius:8px;font-weight:600;font-size:14px;cursor:pointer;background:transparent;transition:.2s}
+.cmt-attach-btn:hover{background:var(--brown);color:#fff}
+.cmt-attach small{color:#7a6a58;font-size:12.5px}
+.cmt-preview{display:flex;gap:8px;flex-wrap:wrap;width:100%}
+.cmt-preview:empty{display:none}
+.cmt-thumb{position:relative;width:84px;height:84px}
+.cmt-thumb img{width:100%;height:100%;object-fit:cover;border-radius:8px;border:2px solid #fff;box-shadow:0 2px 8px #0003}
+.cmt-thumb button{position:absolute;top:-7px;right:-7px;width:22px;height:22px;padding:0;border-radius:50%;background:#a62b1f;color:#fff;font-size:14px;line-height:1;display:grid;place-items:center;border:2px solid #fff}
+.cmt-imgs{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.cmt-imgs img{width:110px;height:110px;object-fit:cover;border-radius:8px;border:2px solid #fff;box-shadow:0 2px 8px #0003;cursor:zoom-in}
+.cmt-time{display:block;font-size:12px;color:#8a7a68;margin-top:2px}
+</style>
+ 
+</head>
+ 
+<body>
+<style>
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 9999;
+    background-color: #653613;
+  }
+</style>
+<header>
+  <div class="hero-eyebrow">Dự án nghiên cứu khoa học kỹ thuật · Đắk Lắk</div>
+  <h1>BẢN ĐỒ KÝ ỨC</h1>
+  <div class="hero-orn">✦ ✦ ✦</div>
+  <p class="hero-sub">Lưu giữ di sản văn hóa phi vật thể – lời kể – hình ảnh – âm thanh cộng đồng Tây Nguyên</p>
+  <div class="hero-chips"><span>🛖 Nhà dài</span><span>🎶 Cồng chiêng</span><span>🐘 Voi Bản Đôn</span><span>🏛️ Di tích lịch sử</span><span>⛰️ Đại ngàn</span></div>
+</header>
+ 
+<nav>
+  <button onclick="veDauTrang()">🏡 Trang chủ</button>
+  <button onclick="document.getElementById('gioi-thieu').scrollIntoView({behavior:'smooth'})">📜 Giới thiệu dự án</button>
+  <button onclick="document.getElementById('ban-do-di-san-song').scrollIntoView({behavior:'smooth'})">🛖 Di sản sống</button>
+  <button onclick="document.getElementById('tro-ly-ai').scrollIntoView({behavior:'smooth'})">✨ AI hỏi đáp</button>
+  <button onclick="document.getElementById('dong-gop').scrollIntoView({behavior:'smooth'})">🪶 Đóng góp tư liệu</button>
+  <button onclick="timDiaDiem()">🧭 Tìm địa điểm</button>
+</nav>
+ 
+<section class="container" style="padding-bottom:0">
+ 
+  <div class="gis-shell">
+ 
+    <div class="gis-topbar">
+ 
+      <div><strong>🗺️ BẢN ĐỒ KHÔNG GIAN DI SẢN ĐẮK LẮK</strong><br><small>Khám phá không gian thực hành và lưu truyền di sản văn hóa phi vật thể</small></div>
+ 
+      <div><small id="gisMapState">Đang khởi tạo bản đồ…</small></div>
+ 
+    </div>
+ 
+    <div class="gis-tools">
+ 
+      <aside class="gis-sidebar" style="position: relative;">
+ 
+  <input id="gisSearch" class="gis-search" type="search" placeholder="Tìm địa điểm...">
+  <div id="gisSuggestions" style="position: absolute; background: white; z-index: 1000; width: 90%; max-height: 200px; overflow-y: auto; border: 1px solid #ccc; display: none; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></div>
+        <div class="gis-stat">
+ 
+          <div><b id="gisCount">0</b><span>Hồ sơ</span></div>
+ 
+          <div><b id="gisVisible">0</b><span>Đang hiển thị</span></div>
+ 
+        </div>
+ 
+        <h3>🧭 Lớp thông tin</h3>
+ 
+        <label class="gis-filter"><input type="checkbox" checked onchange="toggleCategory('history',this.checked)"> Không gian di sản</label>
+ 
+        <label class="gis-filter"><input type="checkbox" checked onchange="toggleCategory('culture',this.checked)"> Thực hành văn hóa</label>
+ 
+        <label class="gis-filter"><input type="checkbox" checked onchange="toggleCategory('education',this.checked)"> Cộng đồng / tư liệu</label>
+ 
+<h3>🏛️ Phân loại di tích và danh thắng</h3>
+ 
+<label class="gis-filter">
+ 
+  <input type="checkbox" class="heritage-filter"
+ 
+    value="history" checked
+ 
+    onchange="locLocFilter()">
+ 
+  Di tích lịch sử
+ 
+</label>
+ 
+<label class="gis-filter">
+ 
+  <input type="checkbox" class="heritage-filter"
+ 
+    value="architecture" checked
+ 
+    onchange="locLocFilter()">
+ 
+  Di tích kiến trúc – nghệ thuật
+ 
+</label>
+ 
+<label class="gis-filter">
+ 
+  <input type="checkbox" class="heritage-filter"
+ 
+    value="archaeology" checked
+ 
+    onchange="locLocFilter()">
+ 
+  Di tích khảo cổ
+ 
+</label>
+ 
+<label class="gis-filter">
+ 
+  <input type="checkbox" class="heritage-filter"
+ 
+    value="cultural" checked
+ 
+    onchange="locLocFilter()">
+ 
+  Di tích lịch sử – văn hóa
+ 
+</label>
+ 
+<label class="gis-filter">
+ 
+  <input type="checkbox" class="heritage-filter"
+ 
+    value="landscape" checked
+ 
+    onchange="locLocFilter()">
+ 
+  Danh lam thắng cảnh
+ 
+</label>
+ 
+        <h3>🗺️ Nền bản đồ</h3>
+ 
+        <label class="gis-filter">🗺️ Bản đồ đường phố (nền duy nhất)</label>
+ 
+        <h3>📍 Danh sách nhanh</h3>
+ 
+        <div id="gisPlaceList" class="gis-place-list"></div>
+ 
+      </aside>
+ 
+      <div class="gis-map-area">
+ 
+        <div class="map-toolbar">
+ 
+          <button class="active" type="button" onclick="zoomToAll()">⌖ Toàn cảnh</button>
+ 
+          <button type="button" onclick="locateUser()">◎ Vị trí của tôi</button>
+ 
+          <button type="button" onclick="openVisibleDirections()">🧭 Chỉ đường</button>
+ 
+        </div>
+ 
+        <div id="map" aria-label="Bản đồ tương tác các địa điểm lịch sử và văn hóa"></div>
+ 
+        <div class="map-status">Bấm vào ghim để mở hồ sơ địa điểm. Nút chỉ đường mở Google Maps riêng, không cần Google Maps API key.<br><span class="lg"><i style="background:#9b2d14"></i>🏛️ Di tích lịch sử</span><span class="lg"><i style="background:#b8791a"></i>🏯 Kiến trúc – văn hóa</span><span class="lg"><i style="background:#2f6a45"></i>🏞️ Danh lam thắng cảnh</span><span class="lg"><i style="background:#2b5d86"></i>🎓 Giáo dục – cộng đồng</span></div>
+ 
+      </div>
+ 
+    </div>
+ 
+  </div>
+ 
+</section>
+ 
+<main class="container">
+ 
+<section class="intro" id="gioi-thieu">
+ 
+  <h2>🛖 Bản đồ di sản sống Tây Nguyên</h2>
+ 
+  <p> 
+ 
+<b>Số hóa ký ức – Kết nối cộng đồng – Lan tỏa giá trị di sản</b> <br>
+ 
+Mỗi vùng đất đều có những câu chuyện làm nên bản sắc. Tây Nguyên không chỉ được nhận diện bởi đại ngàn hùng vĩ, mà còn được nuôi dưỡng bởi tiếng cồng chiêng ngân vang, những lễ hội truyền thống, các trường ca sử thi, truyện kể dân gian và kho tàng tri thức được cộng đồng gìn giữ qua nhiều thế hệ. Đó không đơn thuần là những giá trị văn hóa của quá khứ, mà là một phần ký ức, bản sắc và sức sống của các cộng đồng dân tộc nơi đây.
+  <p style="margin-top:10px">
+    Bản đồ di sản sống Tây Nguyên – Nơi mỗi tọa độ mở ra một câu chuyện, mỗi câu chuyện lưu giữ một ký ức và mỗi ký ức góp phần làm nên bản sắc của một vùng đất.
+</section>
+ 
+<section class="container" style="padding-bottom:0">
+ 
+  <section class="ai-panel" id="tro-ly-ai">
+ 
+    <div class="ai-head"><strong>✨ Trợ lý khám phá ký ức Tây Nguyên</strong><p>Hỏi về địa điểm, lịch sử, văn hóa hoặc tư liệu có trong website.</p></div>
+ 
+    <div class="ai-messages" id="aiMessages"><div class="ai-msg bot">Xin chào! Mình có thể giúp bà tra cứu thông tin đang có trong kho dữ liệu website. Khi chưa có nguồn xác minh, mình sẽ nói rõ thay vì tự khẳng định.</div></div>
+ 
+    <form class="ai-compose" onsubmit="askHeritageAI(event)">
+ 
+      <input id="aiQuestion" placeholder="Ví dụ: Những địa điểm nào liên quan đến lịch sử?" aria-label="Câu hỏi cho trợ lý">
+ 
+      <button class="btn-main" type="submit">Hỏi</button>
+ 
+    </form>
+ 
+    <p class="source-note" style="padding:0 14px 12px">Chế độ hiện tại: trợ lý tra cứu dữ liệu cục bộ. Muốn dùng mô hình AI tạo sinh thật, cần kết nối máy chủ an toàn (không đặt API key trong HTML).</p>
+ 
+  </section>
+ 
+  <section class="intro" id="ban-do-di-san-song">
+ 
+    <h2>🔥 Không gian ký ức Tây Nguyên</h2>
+ 
+    <p style="margin-bottom:16px">Khám phá và lưu giữ những di sản văn hóa phi vật thể của Tây Nguyên thông qua lời kể của cộng đồng, âm thanh, hình ảnh và tư liệu được xác minh.</p>
+ 
+    <div class="feature-grid">
+ 
+      <article class="feature-card">
+ 
+        <strong>🎶 Âm vang cồng chiêng Tây Nguyên</strong>
+ 
+        <p>Giới thiệu tiếng cồng chiêng, nghệ nhân, nhạc cụ, dịp thực hành và ý nghĩa của cồng chiêng trong đời sống cộng đồng các dân tộc Tây Nguyên.là kiệt tác văn hóa đặc sắc của Việt Nam, được UNESCO công nhận là Kiệt tác truyền khẩu và Di sản văn hóa phi vật thể của nhân loại vào ngày 25/11/2005 (và chuyển sang Danh sách di sản văn hóa phi vật thể đại diện của nhân loại vào năm 2008).</p>
+ 
+        <div class="media-slots">
+ 
+          <label>📷 Hình ảnh <input type="file" accept="image/*" multiple onchange="previewHeritageMedia(event,'preview-chieng','image')"></label>
+ 
+          <div id="preview-chieng" class="media-preview"><span>Chừa chỗ hiển thị hình ảnh</span></div>
+ 
+          <label>🎥 Video <input type="file" accept="video/*" onchange="previewHeritageMedia(event,'preview-video-chieng','video')"></label>
+ 
+          <div id="preview-video-chieng" class="media-preview"><span>Chừa chỗ hiển thị video</span></div>
+ 
+          <label>🎧 Âm thanh <input type="file" accept="audio/*" onchange="previewHeritageMedia(event,'preview-audio-chieng','audio')"></label>
+ 
+          <div id="preview-audio-chieng" class="media-preview"><span>Chừa chỗ phát âm thanh/lời kể</span></div>
+ 
+        </div>
+ 
+      </article>
+ 
+      <article class="feature-card">
+ 
+        <strong>🔥 Lễ hội truyền thống</strong>
+ 
+        <p>Lưu giữ thông tin về các lễ hội cộng đồng, thời điểm tổ chức, nghi thức, trang phục, âm nhạc và những giá trị văn hóa được trao truyền qua các thế hệ.</p>
+ 
+        <div class="media-slots">
+ 
+          <label>📷 Hình ảnh <input type="file" accept="image/*" multiple onchange="previewHeritageMedia(event,'preview-lehoi','image')"></label>
+ 
+          <div id="preview-lehoi" class="media-preview"><span>Chừa chỗ hiển thị hình ảnh</span></div>
+ 
+          <label>🎥 Video <input type="file" accept="video/*" onchange="previewHeritageMedia(event,'preview-video-lehoi','video')"></label>
+ 
+          <div id="preview-video-lehoi" class="media-preview"><span>Chừa chỗ hiển thị video</span></div>
+ 
+          <label>🎧 Âm thanh <input type="file" accept="audio/*" onchange="previewHeritageMedia(event,'preview-audio-lehoi','audio')"></label>
+ 
+          <div id="preview-audio-lehoi" class="media-preview"><span>Chừa chỗ phát âm thanh/lời kể</span></div>
+ 
+        </div>
+ 
+      </article>
+ 
+      <article class="feature-card">
+ 
+        <strong>📜 Sử thi &amp; Ký ức buôn làng</strong>
+ 
+        <p>Ghi lại lời kể, truyện dân gian, ký ức cộng đồng và những trích đoạn sử thi do người kể hoặc nghệ nhân cho phép chia sẻ.</p>
+ 
+        <div class="media-slots">
+ 
+          <label>📷 Hình ảnh <input type="file" accept="image/*" multiple onchange="previewHeritageMedia(event,'preview-suthi','image')"></label>
+ 
+          <div id="preview-suthi" class="media-preview"><span>Chừa chỗ hiển thị hình ảnh</span></div>
+ 
+          <label>🎥 Video <input type="file" accept="video/*" onchange="previewHeritageMedia(event,'preview-video-suthi','video')"></label>
+ 
+          <div id="preview-video-suthi" class="media-preview"><span>Chừa chỗ hiển thị video</span></div>
+ 
+          <label>🎧 Âm thanh <input type="file" accept="audio/*" onchange="previewHeritageMedia(event,'preview-audio-suthi','audio')"></label>
+ 
+          <div id="preview-audio-suthi" class="media-preview"><span>Chừa chỗ phát âm thanh/lời kể</span></div>
+ 
+        </div>
+ 
+      </article>
+ 
+    </div>
+ 
+  </section>
+ 
+</section>
+ 
+<section class="form-section" id="dong-gop">
+ 
+  <h2>🪶 Đóng góp tư liệu</h2>
+ 
+  <p>Bạn có bản ghi âm, lời kể, hình ảnh hoặc tư liệu về di sản văn hóa phi vật thể? Hãy chia sẻ để cùng lưu giữ ký ức cộng đồng.</p>
+ 
+  <div class="form-group"><label for="nguoiDongGop">Tên người đóng góp</label><input id="nguoiDongGop" placeholder="Ví dụ: Nguyễn Văn A"></div>
+ 
+  <div class="form-group"><label for="diaDiemDongGop">Địa điểm</label><select id="diaDiemDongGop"></select></div>
+ 
+  <div class="form-group"><label for="tieuDe">Tiêu đề tư liệu</label><input id="tieuDe" placeholder="Ví dụ: Hình ảnh hoặc câu chuyện tại địa điểm"></div>
+ 
+  <div class="form-group"><label for="noiDung">Nội dung / câu chuyện</label><textarea id="noiDung" placeholder="Hãy kể lại câu chuyện hoặc thông tin mà bạn biết..."></textarea></div>
+ 
+  <div class="form-group"><label for="hinhAnhUpload">Hình ảnh</label><input type="file" id="hinhAnhUpload" accept="image/*" multiple></div>
+ 
+  <div class="form-group"><label for="videoUpload">Video</label><input type="file" id="videoUpload" accept="video/*"></div>
+ 
+  <div class="form-group"><label for="audioUpload">Âm thanh / lời kể (MP3, WAV, M4A, OGG)</label><input type="file" id="audioUpload" accept="audio/*"><small style="display:block;color:#655;margin-top:5px">Bản demo chỉ ghi nhận tên tệp trên trình duyệt; để xuất hiện công khai, cần đưa tệp lên máy chủ và kiểm duyệt trước.</small></div>
+ 
+  <div class="form-group"><label for="nguon">Nguồn tư liệu</label><input id="nguon" placeholder="Ví dụ: Tư liệu gia đình / phỏng vấn nhân chứng..."></div>
+ 
+  <button class="btn-main" onclick="luuDongGop()">🪶 Gửi tư liệu</button>
+ 
+  <p style="margin-top:10px;font-size:13px;color:#655">Lưu ý: bản demo này chỉ hiện thông báo trên trình duyệt; chưa gửi tệp lên máy chủ hoặc lưu cho người dùng khác xem.</p>
+ 
+</section>
+ 
+</main>
+ 
+<div class="modal" id="modalDiaDiem" role="dialog" aria-modal="true" aria-labelledby="modalTitle" onclick="if(event.target===this)dongModal()">
+ 
+  <div class="modal-content">
+ 
+    <button class="close" aria-label="Đóng" onclick="dongModal()">×</button>
+ 
+    <h2 id="modalTitle">Tên địa điểm</h2>
+ 
+    <p class="modal-summary" id="modalSummary"></p>
+ 
+    <div class="modal-intro" id="modalIntro"></div>
+ 
+    <div class="acc-tools">
+ 
+      <a id="modalDirections" class="button-link btn-main" target="_blank" rel="noopener">🧭 Chỉ đường trên Google Maps</a>
+ 
+      <button type="button" class="btn-outline" id="accToggleAll" onclick="toggleAllAcc()">▾ Mở tất cả</button>
+ 
+    </div>
+ 
+    <div id="modalSections"></div>
+ 
+    <h3 class="modal-h3">📷 Hình ảnh <span class="muted" id="anhCount"></span></h3>
+ 
+    <div class="gallery" id="modalGallery"></div>
+ 
+    <h3 class="modal-h3">🎥 Video tư liệu <span class="muted" id="videoCount"></span></h3>
+ 
+    <div class="video-container" id="modalVideo" style="margin-top:0"></div>
+ 
+    <section class="heritage-audio" id="modalAudioSection" aria-labelledby="modalAudioHeading">
+ 
+      <h3 id="modalAudioHeading">🎧 Lời kể &amp; Âm thanh di sản <span class="muted" id="audioCount"></span></h3>
+ 
+      <p class="heritage-audio-intro">Lắng nghe lời kể và những âm thanh gắn với di sản văn hóa phi vật thể.</p>
+ 
+      <div id="modalAudioContent"></div>
+ 
+    </section>
+ 
+    <h3 class="modal-h3">📚 Thời gian &amp; nguồn tư liệu</h3>
+ 
+    <div class="info-box" id="modalInfo" style="margin-top:0"></div>
+ 
+    <section class="comments" id="commentsExplore">
+ 
+      <h2>💬 Bình luận &amp; câu hỏi</h2>
+ 
+      <div id="danhSachBinhLuan"><div class="comment"><strong>Khách tham quan</strong><p>Hãy chia sẻ cảm nhận hoặc đặt câu hỏi về tư liệu di sản này.</p></div></div>
+ 
+      <div style="margin-top:18px"><input id="tenBinhLuan" placeholder="Tên của bạn"><textarea id="noiDungBinhLuan" style="margin-top:10px" placeholder="Viết bình luận hoặc đặt câu hỏi..."></textarea>
+
+        <div class="cmt-attach">
+
+          <label class="cmt-attach-btn" for="anhBinhLuan">📷 Thêm hình ảnh</label>
+
+          <input type="file" id="anhBinhLuan" accept="image/jpeg,image/png,image/webp" multiple hidden onchange="chonAnhBinhLuan(this)">
+
+          <small>Tối đa 4 ảnh, mỗi ảnh không quá 5 MB (JPG, PNG, WEBP).</small>
+
+          <div id="previewAnhBinhLuan" class="cmt-preview"></div>
+
+        </div>
+
+        <button class="btn-main" style="margin-top:10px" onclick="themBinhLuan()">Gửi bình luận</button></div>
+ 
+    </section>
+ 
+  </div>
+ 
+</div>
+ 
+<div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Xem ảnh lớn" onclick="if(event.target===this)dongLightbox()">
+ 
+  <button type="button" class="lb-close" aria-label="Đóng ảnh" onclick="dongLightbox()">×</button>
+ 
+  <button type="button" class="lb-nav lb-prev" id="lbPrev" aria-label="Ảnh trước" onclick="lbChuyen(-1)">‹</button>
+ 
+  <img id="lbImg" alt="">
+ 
+  <button type="button" class="lb-nav lb-next" id="lbNext" aria-label="Ảnh sau" onclick="lbChuyen(1)">›</button>
+ 
+  <div class="lb-count" id="lbCount"></div>
+ 
+</div>
+ 
+ 
+ 
+<script>
+ 
+const diaDiems = [
+ 
+{
+ 
+  ten: "Biệt điện Bảo Đại",
+ 
+  toaDo: {lat: 12.6738, lng: 108.0519},
+ 
+  moTa: "<b>Biệt điện Bảo Đại (TP. Buôn Ma Thuột) là một bảo tàng sống mang chiều sâu lịch sử và giá trị kiến trúc – văn hóa đặc sắc, lưu giữ những thông điệp ý nghĩa truyền lại cho đời sau</b>.\n\n<b>Tên gọi & Cảnh quan</b>: Tiền thân là trạm kiểm soát của thực dân Pháp lập ra từ năm 1905 để quản lý vùng đất chiến lược, đến năm 1926 được Công sứ Giran xây dựng lại kiên cố thành Tòa Công sứ Pháp (Résidence), người Ê-đê bản địa quen gọi là Sang Ae Prong (Nhà Ông Lớn). Từ năm 1947 đến 1954, nơi đây trở thành nơi nghỉ ngơi, làm việc của cựu hoàng Bảo Đại với tư cách Quốc trưởng và là thủ phủ của vùng 'Hoàng triều Cương thổ', nên tên gọi Biệt điện Bảo Đại ra đời từ đó. Từng bị xếp hạng với tên hành chính là 'Di tích lịch sử số 4 Nguyễn Du' (năm 1999), đến ngày 28/02/2023, Bộ Văn hóa, Thể thao và Du lịch đã ban hành quyết định chính thức đính chính, trả lại tên gọi lịch sử chuẩn xác cho công trình là Di tích lịch sử Biệt điện Bảo Đại.\n\<b>Đặc điểm cảnh quan & Địa chất</b>: Tọa lạc trên một ngọn đồi lộng gió với phần nền là cồn đất nhân tạo hình chữ nhật cao gần 2 mét để tạo thế uy nghi và thoáng đãng. Công trình là biểu tượng độc đáo của sự hòa hợp văn hóa khi mang dấu ấn giao thoa tinh tế giữa kiến trúc Pháp hiện đại (mái ngói, tường gạch kiên cố, cửa chớp gỗ đối xứng) với dáng dấp trải dài, uốn lượn của ngôi nhà dài truyền thống của đồng bào Ê-đê. Bao quanh tòa nhà và khu nhà nài voi cũ là khuôn viên rộng gần 6,5 ha nằm trên nền đất đỏ bazan màu mỡ.\n\<b>Giá trị du lịch & Sinh thái</b>: Nằm ngay trung tâm đô thị sôi động nhưng khuôn viên di tích được ví như một 'lá phổi xanh' yên bình và trong lành bậc nhất phố núi Buôn Ma Thuột. Đặc biệt, ngay trước thềm biệt điện có hai cây long não cổ thụ khổng lồ trồng từ những năm 1914 – 1920, sừng sững như những chứng nhân bọc lấy không gian và đã được vinh danh là Cây Di sản Việt Nam. Nằm chung quần thể với Bảo tàng Đắk Lắk, nơi đây là điểm đến văn hóa – giáo dục hàng đầu cho du khách muốn tìm hiểu kiến trúc thời cận đại và trải nghiệm không gian xanh .\n\<b>Truyền thuyết & Thực hành bảo tồn</b>: Xung quanh ngôi biệt điện vẫn lưu truyền câu chuyện lịch sử 'Bộ súng săn của Vua' và ván cờ chính trị. Tại dinh thự này, cựu hoàng Bảo Đại dành phần lớn thời gian để săn bắn thú rừng nhằm khỏa lấp nỗi cô độc thời cuộc. Tuy nhiên, đằng sau vỏ bọc đó, đây là nơi diễn ra các cuộc thương lượng ngầm căng thẳng giữa ông, người Pháp và các thủ lĩnh phong trào người Thượng nhằm cố gắng giữ sự toàn vẹn cho vùng đất Tây Nguyên, phản ánh một góc khuất lịch sử đầy biến động trước khi chế độ quân chủ khép lại. Trong công tác bảo tồn hiện nay, Ban quản lý Bảo tàng tỉnh Đắk Lắk thường xuyên trùng tu nguyên trạng kiến trúc gỗ, chăm sóc hai cây Long não di sản và số hóa tư liệu trưng bày nhằm giữ gìn trọn vẹn giá trị cho các thế hệ tương lai\n<b>Ý nghĩa văn hóa & Lịch sử truyền đời</b>: Di tích mang chiều sâu lịch sử đặc biệt khi chứng kiến đầy đủ 3 giai đoạn biến thiên của dân tộc: từ nơi cai trị của thực dân Pháp (1905 – 1945), đến sự hoàng hôn của chế độ quân chủ dưới thời cựu hoàng Bảo Đại, gợi mở sâu sắc về câu chuyện của triều Nguyễn cùng đời sống cộng đồng bản địa thời Pháp thuộc. Không chỉ lưu dấu nền cựu hoàng tộc, nơi đây còn là nơi đặt nền móng cho chính quyền cách mạng tỉnh Đắk Lắk ngay sau năm 1945 (trụ sở Hội đồng cố vấn cách mạng) và sau giải phóng năm 1975 (trụ sở đầu tiên của Tỉnh ủy Đắk Lắk), trước khi trở thành Di tích lịch sử cấp Quốc gia.\n\<b>Câu chuyện & Bảo tồn</b>: Xung quanh ngôi biệt điện vẫn lưu truyền câu chuyện lịch sử 'Bộ súng săn của Vua' và ván cờ chính trị. Tại dinh thự này, cựu hoàng Bảo Đại dành phần lớn thời gian để săn bắn thú rừng nhằm khỏa lấp nỗi cô độc thời cuộc. Tuy nhiên, đằng sau vỏ bọc đó, đây là nơi diễn ra các cuộc thương lượng ngầm căng thẳng giữa ông, người Pháp và các thủ lĩnh phong trào người Thượng nhằm cố gắng giữ sự toàn vẹn cho vùng đất Tây Nguyên, phản ánh một góc khuất lịch sử đầy biến động trước khi chế độ quân chủ khép lại. Trong công tác bảo tồn hiện nay, Ban quản lý Bảo tàng tỉnh Đắk Lắk thường xuyên trùng tu nguyên trạng kiến trúc gỗ, chăm sóc hai cây Long não di sản và số hóa tư liệu trưng bày nhằm giữ gìn trọn vẹn giá trị cho các thế hệ tương lai" ,
+ 
+  anh:
+  ["images/biendienbaodai-1.jpg", 
+  "images/bietdienbaodai-2.jpg",
+  "images/bietdienbaodai-2.jpg", 
+  "images/bietdienbaodai-3.jpg",
+  "images/bietdienbaodai-4.jpg",
+  "images/bietdienbaodai-5.jpg",
+  "images/bietdienbaodai-6.jpg",
+  "images/bietdienbaodai-7.webp",
+  "images/bietdienbaodai-8.webp",
+  "images/bietdienbaodai-9.webp",
+  "images/bietdienbaodai-10.webp",
+  "images/bietdienbaodao-11.webp",
+  "images/bietdienbaodai-12.webp"
+  ],
+ 
+  video: " https://youtu.be/Ny2cZ-fmCwk?si=YLCs453ogWbFmTJJ ",
+ 
+  amThanh: "",
+ 
+  loiKe: "",
+ 
+  nguoiKe: "",
+ 
+  amThanhNguon: "",
+ 
+  nam: "Năm 1914: Thành lập làm công sở gỗ (Tòa Đại lý Quận trưởng Pháp) dưới thời Công sứ Sabatier.Năm 1926: Chính thức xây dựng kiên cố bằng gạch đá dưới thời Công sứ Giran, hoàn thành năm 1927 làm Tòa Công sứ Pháp",
+ 
+  nguon: "http://dulichdaklak.gov.vn/di-tich-lich-su-quoc-gia-biet-dien-bao-dai-6003.html, https://vietnamtourism.gov.vn/post/48207, https://www.daklakmuseum.vn/tin-tuc-su-kien/bai-viet/doi-ten-di-tich-lich-su-so-4-nguyen-du-thanh-di-tich-lich-su-biet-dien-bao-dai?lng=en, https://daklakmuseum.vn/tin-tuc-su-kien/bai-viet/di-tich-lich-su-biet-dien-bao-dai.",
+ 
+  tomTat: "Tọa lạc tại số Số 02 đường Y Ngông, phường Buôn Ma Thuột, tỉnh Đắk Lắk."
+ 
+},
+ 
+{
+ 
+  ten: "Hồ Ea Kao",
+ 
+  toaDo: {lat: 12.6074, lng: 108.0838},
+ 
+  moTa: "<b>Hồ Ea Kao(Khu vực Hồ Ea Kao, đường Y Wang, phường Ea Kao, tỉnh Đắk Lắk.) là một điểm đến dã ngoại và văn hóa độc đáo, mang đậm hơi thở của đại ngàn Tây Nguyên </b>.\n\n<b>Tên gọi & Cảnh quan</b>: Trong tiếng Ê-đê, Ea Kao có nghĩa là “hồ nước không bao giờ cạn”. Đây là công trình thủy lợi được khởi công xây dựng trong giai đoạn 1978 – 1983 bằng cách chặn dòng các con suối lớn cổ xưa như Ea Knin, Ea Kao, Ea Chăt và Cư Mblim. Hồ có diện tích mặt nước rộng lớn khoảng 288,90 ha, tạo nên một không gian mênh mông, lộng gió và xanh mát quanh năm ở vùng ven thành phố. Nhờ sự hòa quyện giữa giá trị lịch sử kiến thiết, văn hóa buôn làng và cảnh quan đặc sắc, hồ đã được Ủy ban Nhân dân tỉnh Đắk Lắk xếp hạng là Di tích Danh lam thắng cảnh cấp tỉnh vào năm 2012.\n\<b>Đặc điểm cảnh quan & Địa chất</b>: Hồ được hình thành trên một thung lũng trũng tự nhiên với hệ thống đất đỏ bazan màu mỡ bao quanh, đóng vai trò điều tiết thủy lợi then chốt và cung cấp nước tưới tiêu cho hàng ngàn hecta lúa nước và cà phê của toàn vùng. Cấu trúc lòng hồ uốn lượn theo địa hình đồi thoải tạo nên nhiều bán đảo nhỏ nhô ra mặt nước, cùng hệ thống bờ đập vững chãi ngăn cách giữa lòng hồ sâu thẳm và vùng canh tác trù phú phía hạ lưu.\n\<b>Giá trị du lịch & Sinh thái</b>: Sở hữu mặt nước trong xanh in bóng mây trời, bờ hồ lộng gió và những triền cỏ xanh mướt trải dài, Hồ Ea Kao tạo điều kiện lý tưởng cho các hoạt động tham quan, dã ngoại, cắm trại và thưởng ngoạn cảnh bình minh hay hoàng hôn. Bên cạnh đó, lòng hồ còn duy trì hệ sinh thái thủy sinh đa dạng với nhiều loài cá nước ngọt tự nhiên, góp phần điều hòa khí hậu mát mẻ và cân bằng sinh thái cho khu vực cửa ngõ phía Nam Buôn Ma Thuột.\n\<b>Ý nghĩa văn hóa & Lịch sử truyền đời</b>: Hồ Ea Kao là minh chứng lịch sử sống động cho tinh thần đại đoàn kết thời kỳ đầu xây dựng đất nước (1978 – 1983), khi công trình được kiến tạo hoàn toàn bằng sức người và hàng ngàn ngày công lao động của đồng bào các dân tộc (Kinh, Ê-đê...) trong hoàn cảnh cực kỳ thiếu thốn. Đối với thế hệ mai sau, nơi đây còn là không gian lưu giữ toàn bộ lịch sử định cư, các bài khan (sử thi) và ghi nhận cách cộng đồng bản địa sử dụng, quản lý và gắn bó linh thiêng với nguồn nước qua phong tục thờ thần nước (Yàng Ea).\n\<b>Truyền thuyết & Thực hành bảo tồn</b>: Xung quanh lưu vực hồ lưu truyền nhiều giai thoại dân gian của người Ê-đê về nguồn nước thiêng, đồng thời ghi dấu câu chuyện lịch sử 'Vá đập xuyên đêm' vào mùa mưa năm 1981. Khi một trận lũ quét bất ngờ đe dọa làm vỡ bờ đập đang thi công dở dang, hàng trăm thanh niên xung phong, bộ đội và người dân Ê-đê đã đốt đuốc, hò nhau vác đá bện đất, dùng cả thân mình để be bờ khóa dòng lũ thành công. Để thực hành bảo tồn bền vững, công trình hiện được quản lý vận hành nghiêm ngặt nhằm đảm bảo an toàn thủy lợi, kết hợp với việc gìn giữ cảnh quan môi trường xanh sạch và bảo tồn không gian văn hóa buôn làng xung quanh hồ ",
+ 
+  anh: ["images/hoeakao-2.jpg",
+    "images/hoeakao-3.png",
+    "images/hoeakao-4.jpeg"
+  ],
+ 
+  video: "https://youtu.be/84-99IzeQsE?si=hFsAMkiR4OUEKtU6",
+ 
+  amThanh: "",
+ 
+  loiKe: "",
+ 
+  nguoiKe: "",
+ 
+  amThanhNguon: "",
+ 
+  nam: "<b>Năm 1980</b>: Chính thức khởi công xây dựng.<b> Năm 1983</b>: Vận hành và khánh thành dòng chảy, hình thành nên hồ nước nhân tạo có giá trị thủy lợi và cảnh quan lớn của tỉnh Đắk Lắk.",
+ 
+  nguon: "https://vi.wikipedia.org/wiki/H%E1%BB%93_Ea_Kao,  https://daklakmuseum.vn/tin-tuc-su-kien/bai-viet/ho-ea-kao, https://daklakmuseum.vn/tin-tuc-su-kien/bai-viet/ho-ea-kao, https://baodaklak.vn/channel/8427/201206/ea-kao-ho-nuoc-khong-bao-gio-can-2161099/, https://tienphong.vn/chuyen-quanh-ho-nuoc-khong-bao-gio-can-post1429457.tpo",
+ 
+  tomTat: "Tọa lạc tại khu vực Hồ Ea Kao, đường Y Wang, phường Ea Kao, tỉnh Đắk Lắk.."
+ 
+},
+ 
+{
+ 
+  ten: "Đồi Cư H'lăm",
+ 
+  toaDo: {lat: 12.7844, lng: 108.0664},
+ 
+  moTa: "<b>Đồi Cư H'lăm (  Tỉnh lộ 8, xã Quảng Phú, tỉnh Đắk Lắk) là một khu rừng nguyên sinh cổ xưa, mang đậm dấu ấn văn hóa tâm linh độc đáo của đồng bào Ê-đê để truyền lại cho đời sau</b>.\n\n<b>Tên gọi & Cảnh quan</b>: Trong tiếng Ê-đê, Cư có nghĩa là núi hoặc đồi, còn H'lăm dùng để chỉ người con gái bị vùi lấp hoặc tội trạng loạn luân, trái đạo đức. Toàn bộ ngọn đồi rộng gần 19 hecta, bảo tồn hơn 15 hecta rừng nguyên sinh 5 tầng xanh mướt quanh năm. Đây là mảnh rừng cổ tự nhiên gắn liền với lịch sử định cư lâu đời của người Ê-đê Kpă qua nhiều thế kỷ, tạo nên một khung cảnh linh thiêng và tĩnh mịch giữa phố thị.\n\<b>Đặc điểm cảnh quan & Địa chất</b>: Đồi có độ cao đỉnh khoảng 524m so với mực nước biển, sở hữu thổ nhưỡng đất Feralit nâu đỏ trên đá Bazan màu mỡ, đi kèm với hồ nước H'lăm nằm ôm lấy chân đồi. Theo nhận định địa chất, vùng trũng trên đỉnh đồi và lòng hồ dưới chân đồi chính là dấu tích của một miệng núi lửa đã tắt từ hàng triệu năm trước. Cấu trúc rừng nhiệt đới nửa rụng lá tại đây cực kỳ phong phú với khoảng 112 loài thực vật cùng nhiều cây gỗ quý cổ thụ như sao đỏ, cà te, gõ mật, giáng hương có đường kính gốc từ 3 đến 4 người ôm.\n\<b>Giá trị du lịch & Sinh thái</b>: Đóng vai trò là rừng phòng hộ đầu nguồn bảo vệ mạch nước ngầm cho cả khu vực Ea Pốk, không gian rừng già xanh mát tại đây tạo điều kiện lý tưởng cho các hoạt động tham quan, dã ngoại gần gũi thiên nhiên, trekking nhẹ và tìm hiểu đa dạng sinh học rừng cộng đồng .\n\<b>Ý nghĩa văn hóa & Lịch sử truyền đời</b>: Di tích lưu giữ câu chuyện lịch sử 'Người Pháp bạt núi thất bại' vào thập niên 1930. Khi thực dân Pháp đưa máy móc định chặt hạ vạt rừng nguyên sinh để lấy gỗ và trồng cà phê, đồng bào Ê-đê đã kiên quyết kéo ra phản đối. Họ khôn khéo dùng chính 'truyền thuyết về lời nguyền nàng H'lăm' và sự linh thiêng của thần rừng để cảnh báo, khiến các chủ đồn điền hoang mang phải dừng lại. Câu chuyện là minh chứng sâu sắc truyền lại cho đời sau về việc dùng vũ khí văn hóa và tín ngưỡng để bảo vệ thiên nhiên.\n\<b>Truyền thuyết & Thực hành bảo tồn</b>: Ý nghĩa lớn nhất của di tích là giai thoại về mối tình oan trái của nàng H'lăm (anh em cùng dòng họ Niê là Y Đin và H'Hoan) phạm vào luật tục buôn làng, dẫn đến việc đất sụp chôn vùi cả buôn thành sình lầy và hình thành ngọn đồi thiêng. Câu chuyện tâm linh này gắn liền với các thực hành văn hóa đặc sắc như luật tục bảo vệ rừng, lễ cúng bến nước và lễ cúng thần rừng. Những luật tục này vừa răn đe giáo dục đạo đức, vừa đóng vai trò như một 'sợi dây' tâm linh giúp cộng đồng tự giác bảo vệ, giữ gìn vẹn toàn mảnh rừng già suốt trăm năm qua mà không ai dám chặt phá",
+ 
+  anh: ["images/Đồi_Cư_H'lăm-1.JPG",
+    "images/đồi_Cư_H'Lăm_2.JPG",
+    "images/doicuh'lam-1.webp"
+  ],
+ 
+  video: "https://youtu.be/SHEZ9T05Dec?si=F-xjDfiM-g_14cGP",
+ 
+  amThanh: "",
+ 
+  loiKe: "",
+ 
+  nguoiKe: "",
+ 
+  amThanhNguon: "",
+ 
+  nam: " Ngày 24/09/2009, Ủy ban Nhân dân tỉnh Đắk Lắk chính thức ban hành quyết định xếp hạng đồi Cư H'lăm là Di tích Danh lam thắng cảnh cấp tỉnh.",
+ 
+  nguon: "https://www.daklakmuseum.vn/tin-tuc-su-kien/bai-viet/doi-u-hlam-dau-an-van-hoa-tam-linh-cua-nguoi-e-de-huyen-cu-mgar?lng=en, https://vi.wikipedia.org/wiki/%C4%90%E1%BB%93i_C%C6%B0_H%E2%80%99L%C4%83m.",
+ 
+  tomTat: "Tọa lạc trên Khu vực Đồi Cư H'lăm,  Tỉnh lộ 8, xã Quảng Phú, tỉnh Đắk Lắk (nằm dọc tuyến Tỉnh lộ 8, khoảng Km 14)."
+ 
+},
+ 
+{
+ 
+  ten: "Thác Drai Dlông (Thác Cao)",
+ 
+  toaDo: {lat: 12.9125, lng: 108.0416},
+ 
+  moTa: "<b>Thác Drai Dlông (hay còn gọi là Thác Cao, Thác Ba Tầng, Thác Ea M’Droh) . Đây là một 'viên ngọc xanh' hoang sơ, mang đậm dấu ấn về cấu trúc địa chất đặc biệt và tín ngưỡng dân gian, sử thi đại ngàn lâu đời của Tây Nguyên</b>.\n\n<b>Tên gọi & Cảnh quan</b>: Theo tiếng bản địa Ê-đê, Drai có nghĩa là thác, còn Dlông có nghĩa là cao, vì vậy Drai Dlông mang ý nghĩa là thác nước cao (nên còn được gọi dân dã là Thác Cao). Thác được hình thành từ sự hợp dòng của hai con suối Ea'Drŏh và Ea M'Drǎh, đổ xuống thung lũng đá tạo nên một bức tranh thiên nhiên kỳ vĩ, hoang sơ giữa vạt rừng đại ngàn .\n\<b>Đặc điểm cảnh quan & Địa chất</b>: Cảnh quan địa chất đặc biệt của ngọn thác được nhấn mạnh bởi các vách đá bazan có hình dạng cột, xếp liền kề nhau thành những mảng đá lớn vĩ đại. Từ độ cao khoảng 30 mét, dòng nước đổ ập xuống vách đá thẳng đứng và chia tách thành 3 nhánh lớn như ba dải lụa trắng xóa (nên cũng gọi là Thác Ba Tầng), tung bọt mát rượi xuống lòng hồ sâu bên dưới.\n\<b>Giá trị du lịch & Sinh thái</b>: Ẩn mình giữa thung lũng đá cổ xưa và những cánh rừng nguyên sinh còn giữ được nét nguyên bản, thắng cảnh tạo điều kiện lý tưởng cho các hoạt động tham quan, khám phá sinh thái, dã ngoại trải nghiệm và tìm hiểu kiến tạo địa chất đá cột đặc trưng của vùng cao nguyên .\n\<b>Ý nghĩa văn hóa & Lịch sử truyền đời</b>: Dòng thác gắn liền với câu chuyện lịch sử 'Buôn Cháy' anh hùng. Cách thác khoảng 1km là buôn M'Drŏh – căn cứ cách mạng H5 kiên trung trong kháng chiến chống Mỹ, nơi đồng bào một lòng nuôi giấu cán bộ, vót chông đánh giặc. Khi bị phát hiện, quân địch tàn bạo phóng hỏa thiêu rụi toàn bộ nhà dài trong buôn, hình thành nên địa danh lịch sử Buôn Cháy; vượt qua đau thương, người dân vẫn lấy dòng thác làm điểm tựa tinh thần, kiên cường bám trụ bảo vệ quê hương. Bên cạnh đó, ngọn thác còn là tư liệu văn hóa sống động về tín ngưỡng dân gian khi một số cộng đồng địa phương gắn khu vực này với hình tượng thần nước (Yàng Ea) đầy linh thiêng.\n\<b>Truyền thuyết & Thực hành bảo tồn</b>: Truyền thuyết dân gian nơi đây lưu giữ câu chuyện cảm động về 'Dòng nước cứu đói'. Vào những năm đại ngàn hạn hán khốc liệt, nương rẫy xơ xác, bên thung lũng đá của ngọn thác cao 30m này vẫn mọc lên vô số bụi khoai môn hoang xanh tốt nhờ hơi nước mát lành, giúp đồng bào các buôn làng kéo về bẻ củ ăn vượt qua nạn đói. Từ đó, người Ê-đê xem dòng thác như bầu sữa mẹ hiền hòa, răn dạy con cháu biết ơn và tự giác thực hành các quy tắc bảo vệ nguồn nước, giữ gìn hệ sinh thái rừng đầu nguồn nguyên vẹn cho đời sau",
+ 
+  anh: ["images/thacgialong-1.png","thacgialong-2.png","thacgialong-3.png"],
+ 
+  video: "https://youtu.be/bhS8-HJHOx8?si=4lFxC-5BwnY9LD8p",
+ 
+  amThanh: "",
+ 
+  loiKe: "",
+ 
+  nguoiKe: "",
+ 
+  amThanhNguon: "",
+ 
+  nam: "Ngày 15/12/2004, thác được Bộ Văn hóa - Thông tin chính thức xếp hạng là Di tích danh lam thắng cảnh quốc gia. Thác được kiến tạo từ những biến động địa chất nguyên sơ qua hàng triệu năm.",
+ 
+  nguon: "https://daklakmuseum.vn/tin-tuc-su-kien/bai-viet/thac-drai-dlong, https://dulieuphapluat.vn/cong-cu/da-dang-sinh-hoc/khu-bao-ton/thang-canh-thac-drai-dlong.html, https://eamdroh.daklak.gov.vn/thac-drai-dlong-xa-ea-mdroh-ve-dep-hung-vi-tay-nguyen-niu-chan-doan-du-khach-tham-quan-check-in-21893.html,https://baodaklak.vn/",
+ 
+  tomTat: " Tọa lạc trên địa bàn Xã Ea M'Droh, tỉnh Đắk Lắk (cách buôn M'Drŏh / buôn Cháy khoảng 1 km)."
+ 
+},
+ 
+{
+ 
+  ten: "Thác Drai Dăng",
+ 
+  toaDo: {lat: 12.6612, lng: 108.2255},
+ 
+  moTa: "<b>Thác Drai Dăng (Xã Ea Knuếc, tỉnh Đắk Lắk) là một danh thắng hoang sơ, một 'bài ca sử thi' khắc ghi cả những truyền thuyết tình yêu lẫn khát vọng chinh phục thiên nhiên của đồng bào Ê-đê để truyền lại cho đời sau</b>.\n\n<b>Tên gọi & Cảnh quan</b>: Theo tiếng Ê-đê bản địa, Drai có nghĩa là thác, còn Dăng có nghĩa là dài hoặc dấu vết chém dài. Ngoài ra, một số tài liệu địa phương còn diễn giải tên gọi này mang ý nghĩa là “Thác đợi”. Thác được hình thành từ dòng chảy của suối Ea Knuếc uốn lượn qua các dãy đá cổ trước khi đổ ra sông mẹ Krông Ana, tạo nên một khung cảnh thiên nhiên mộc mạc, hoang sơ nằm giữa không gian đồi rẫy xanh mát của khu vực Krông Pắc.\n\<b>Đặc điểm cảnh quan & Địa chất</b>: Ngọn thác sở hữu cấu trúc đá bazan 3 tầng đặc biệt, trải dài hàng trăm mét uốn lượn như một dải lụa mềm mại giữa đại ngàn. Điểm nhấn địa chất độc đáo nhất nằm ở tầng thác chính: vách đá không dựng đứng mà nằm thoai thoải, trên bề mặt đá hằn lên vô vàn những nấc thang nhỏ song song, trông giống hệt như những vết kiếm chém sâu vào lòng đá qua hàng triệu năm kiến tạo.\n\<b>Giá trị du lịch & Sinh thái</b>: Ẩn mình trong thung lũng của dãy Cư Kuin xanh thẳm, bao bọc bởi những đồi tre nứa và đồi thông mộc mạc, nơi đây giữ được nét hoang sơ thơ mộng, không khí trong lành quanh năm. Cảnh quan tự nhiên này mở ra không gian lý tưởng cho các hoạt động tham quan, dã ngoại cuối tuần, dạo bộ ngắm các vách đá cổ và cắm trại trải nghiệm ven sông.\n\<b>Ý nghĩa văn hóa & Lịch sử truyền đời</b>: Dòng thác là biểu tượng cho dòng chảy bền bỉ của thời gian và mạch nguồn sự sống nuôi dưỡng buôn làng. Trong dòng chảy lịch sử, những ghềnh đá hiểm trở nơi đây từng là vùng đệm an toàn che chở cho hoạt động của lực lượng cách mạng. Đối với thế hệ mai sau, ngọn thác gửi gắm bài học sâu sắc về lòng thủy chung, ý chí vượt qua nghịch cảnh và lời nhắc nhở thiêng liêng về lòng biết ơn đối với nguồn nước, nguồn rừng của quê hương .\n\<b>Truyền thuyết & Thực hành bảo tồn</b>: Kho tàng tri thức dân gian quanh thác được bồi đắp bởi hai giai thoại đặc sắc. Một mặt, truyền thuyết về “Thác đợi” kể về một cô gái Ê-đê ngày ngày thủy chung chờ người yêu trở về, nỗi mong đợi và những giọt nước mắt của nàng đã hóa thành dòng thác chảy mãi. Mặt khác, những nấc thang đá thoai thoải trên mặt thác được hình tượng hóa thành 'vết thương oanh liệt' từ trận giao chiến phân định thắng bại giữa dũng sĩ Y San và Thần Cá sấu (Aê Yang Mya) trong sử thi buôn Kang, răn dạy hậu thế về lòng dũng cảm. Để bảo tồn bền vững, chính quyền địa phương thường xuyên kiểm kê, bảo vệ nguyên trạng cấu trúc dòng chảy tự nhiên và cảnh quan rừng đầu nguồn",
+ 
+  anh: ["images/thacdraidang-1.jpg",
+  "images/thacdraidang-1.jpg",
+"images/thacdraidang-1.jpg",
+  "images/thacdraidang-1.jpg",
+  "images/thacdraidang-1.jpg",
+
+  ],
+ 
+  video: "",
+ 
+  amThanh: "",
+ 
+  loiKe: "",
+ 
+  nguoiKe: "",
+ 
+  amThanhNguon: "",
+ 
+  nam: "Được hình thành từ dòng chảy suối Ea Knuếc uốn lượn qua các dãy đá cổ trước khi đổ ra sông mẹ Krông Ana.<b>Ngày 16/05/2012</b>, Ủy ban Nhân dân tỉnh Đắk Lắk chính thức ban hành quyết định xếp hạng thác Drai Dăng là Di tích Danh lam thắng cảnh cấp tỉnh",
+ 
+  nguon: "https://daklakmuseum.vn/, https://daklakmuseum.vn/tin-tuc-su-kien/bai-viet/thac-drai-dang, https://eaknuec.daklak.gov.vn/di-tich-danh-thang-thac-drai-dang-xa-ea-knuec-huyen-krong-pac-1642.html,  https://vietnamtourism.gov.vn/post/43805.",
+ 
+  tomTat: "Tọa lạc tại địa phận xã Ea Knuếc, tỉnh Đắk Lắk, cách trung tâm TP. Buôn Ma Thuột khoảng 25 - 30km về phía Đông."
+ 
+},
+ 
+{
+ 
+  ten: "Thác Thủy Tiên",
+ 
+  toaDo: {lat: 12.9099, lng: 108.4116},
+ 
+  moTa: "<b>Thác Thủy Tiên (huyện Krông Năng) là một danh thắng quốc gia kiệt tác, một 'dòng suối tóc thủy chung' và là biểu tượng của lòng kiên trung, tình nghĩa sắt son cùng khát vọng khai phá mạch nguồn sự sống của đồng bào Ê-đê để truyền lại cho đời sau</b>.\n\n<b>Tên gọi & Cảnh quan</b>: Thắng cảnh này sở hữu ba cách gọi giàu hình ảnh. Tên hành chính Thác Thủy Tiên dùng để ước lệ vẻ đẹp mềm mại, uyển chuyển tựa như nàng tiên giữa rừng sâu; tên dân dã Thác Ba Tầng mô tả trực quan cấu trúc phân bậc tự nhiên của dòng nước; còn đồng bào Ê-đê bản địa gọi thác là Drai Ea Púk (với Drai là thác, Ea Púk có nghĩa là 'Suối Tóc'), gắn liền với vạt rừng nguyên sinh bao bọc xung quanh và giai thoại mái tóc dài của nàng H'Năng hóa thành dòng chảy.\n\<b>Đặc điểm cảnh quan & Địa chất</b>: Thác trải rộng trên diện tích khoảng 30ha, uốn lượn dài gần 1km giữa bốn bề rừng thường xanh cổ thụ. Điểm nhấn địa chất đặc biệt là dòng thác phân chia thành ba nấc rõ rệt: Tầng thứ nhất có độ dốc nhỏ, dòng chảy hiền hòa qua các phiến đá; Tầng thứ hai mở rộng với nhiều bậc đá xếp tầng gồ ghề, uốn khúc; Tầng thứ ba đổ tràn từ vách cao xuống một lòng hồ rộng và sâu, tung bọt trắng xóa tựa dải lụa mộng mơ.\n\<b> Giá trị du lịch & Sinh thái</b>: Nằm cạnh rừng nguyên sinh Ea Púk và kết nối với vùng đệm Khu Bảo tồn thiên nhiên Ea Sô, danh thắng mang giá trị sinh thái đặc biệt với thảm thực vật rừng nhiệt đới đa dạng cùng nhiều loài gỗ quý hiếm như cẩm lai, giáng hương. Không gian hoang sơ, không khí trong lành quanh năm tại đây là điểm đến lý tưởng cho các hoạt động picnic sinh thái, ngắm cảnh thiên nhiên và tìm hiểu đa dạng sinh học đại ngàn.\n\<b>Ý nghĩa văn hóa & Lịch sử truyền đời</b>: Ý nghĩa sâu sắc nhất của thác Thủy Tiên nằm ở kho tàng sử thi lưu truyền qua bao thế hệ người Ê-đê bản địa, giáo dục hậu thế về đức hy sinh và tinh thần vượt nghịch cảnh. Tiêu biểu là Sự tích<b> 8 nhát kiếm của Đăm Ji</b>, kể rằng hình dáng bờ đá uốn lượn sừng sững của ngọn thác ngày nay chính là dấu tích kiến tạo từ 8 nhát kiếm oai hùng của chàng dũng sĩ Đăm Ji vạch lối, bạt núi khai hoang nguồn nước cứu buôn làng thoát khỏi đại hạn.\n\<b>Truyền thuyết & Thực hành bảo tồn</b>: Ngọn thác gắn liền với <b>Huyền thoại Nàng H'Năng</b> kiên trung. Chuyện xưa kể về vùng đất bị Giàng phạt hạn hán, chồng nàng H'Năng phải dắt trai tráng đi tìm đất mới nhưng mãi không trở về. Vì thương buôn làng đói khát, nàng đã tự mình lặn lội đi tìm chồng đến mức kiệt sức ngã xuống; tấm lòng son sắt cùng những giọt nước mắt thủy chung của nàng đã hóa thành dòng suối mát lành cứu sống muôn loài, còn mái tóc nàng hóa thành dòng thác Thủy Tiên. Về công tác bảo tồn hiện nay, chính quyền địa phương phối hợp chặt chẽ với Ban quản lý Rừng phòng hộ đầu nguồn Krông Năng tổ chức tuần tra nghiêm ngặt, có thời điểm tạm ngưng hoạt động tham quan tự do để đảm bảo an toàn rừng và bảo vệ trọn vẹn hệ sinh thái nguyên sinh cho đời sau.",
+ 
+  anh: ["images/thacthuytien-1.jpg",
+    "images/thacthuytien-5.jpg",
+    "thaccthuytien-6.jpg",
+    "images/thacthuytien-4.jpg",
+    "images/thacthuytien2.webp",
+    "thacthuytien-3.webp"
+  ],
+ 
+  video: "https://youtu.be/jj-gr6SpBKA",
+ 
+  amThanh: "",
+ 
+  loiKe: "",
+ 
+  nguoiKe: "",
+ 
+  amThanhNguon: "",
+ 
+  nam: "Được kiến tạo từ những dòng suối nhỏ âm thầm chảy trong lòng rừng sâu Ea Púk, kết hợp lại đổ ra thung lũng đá. <b>Ngày 03/03/2009</b>, Bộ Văn hóa, Thể thao và Du lịch chính thức ban hành Quyết định số 833/QĐ-BVHTTDL xếp hạng Thác Thủy Tiên là Di tích Danh lam thắng cảnh cấp Quốc gia",
+ 
+  nguon: "http://ttvhdl.vhttdl.daklak.gov.vn/thac-thuy-tien-ve-dep-hoang-so-me-dam-long-nguoi-5940.html, https://mia.vn/cam-nang-du-lich/thac-thuy-tien-dak-lak-14078, https://vi.wikipedia.org/wiki/Th%C3%A1c_Th%E1%BB%A7y_Ti%C3%AAn, https://daklakmuseum.vn/tin-tuc-su-kien/bai-viet/thac-thuy-tien.",
+ 
+  tomTat: "Tọa lạc tại địa bàn vùng thôn Giang Tiến, xã Phú Xuân, tỉnh Đắk Lắk, cách trung tâm TP. Buôn Ma Thuột khoảng 56 - 60km về hướng Đông Bắc."
+ 
+},
+ 
+{
+ 
+  ten: "Thác Bay",
+ 
+  toaDo: {lat: 12.6747, lng: 108.8711},
+ 
+  moTa: "<b>Thác Bay (xã Ea Sô, huyện Ea Kar) là một di tích danh thắng cấp tỉnh, một 'kiệt tác sương khói' vẹn nguyên giữa vùng lõi rừng nghiêm ngặt, mang theo bài học sử thi vĩ đại về sự sinh tồn và lòng biết ơn thiên nhiên của đồng bào Tây Nguyên</b>.\n\n Tên gọi (ý nghĩa, nguồn gốc) & Cảnh quan: Trong tiếng Ê-đê nguyên bản, thác có tên gọi là Drai Dhul (với Drai là thác, Dhul là sương mù, sương khói). Tên gọi này xuất phát từ hiện tượng tự nhiên độc đáo khi dòng nước từ trên cao đổ ập xuống vách đá tạo ra hàng triệu hạt bụi nước li ti bay ngược lên trời, phủ một lớp sương khói mờ ảo, huyền bí quanh ghềnh thác, khiến người Việt gọi là Thác Bay.\n\<b>Đặc điểm cảnh quan & Địa chất</b>: Ngọn thác được nuôi dưỡng bởi con suối Ea Đăh bắt nguồn từ hệ thống núi Čư Dliê Ya và Čư Dlông, sở hữu vách đá cổ sừng sững với độ cao vạt nước đổ hơn 30 mét. Cảnh quan địa chất ở đây có sự biến đổi rõ rệt theo hai mùa: vào mùa mưa (tháng 5 – 11), dòng nước xiết đổ xuống gầm vang, va đập mạnh vào các thềm đá hoa cương tạo nên hàng triệu hạt bụi nước li ti bay ngược lên trời như làn sương khói mờ ảo (lý giải cho tên gọi Drai Dhul hay Thác Bay); ngược lại vào mùa khô, dòng thác trở nên hiền hòa, trong vắt và duy trì nhiệt độ mát mẻ khoảng 25°C quanh năm.\n\<b>Giá trị du lịch & Sinh thái</b>: Nhờ vị trí biệt lập nằm trong phân khu bảo vệ nghiêm ngặt của rừng đặc dụng Ea Sô, Thác Bay giữ được vẹn nguyên hệ sinh thái rừng rậm nhiệt đới và thảm rừng khộp nguyên sinh đặc trưng của Tây Nguyên. Nơi đây sở hữu thảm thực vật phong phú với những gốc cây cổ thụ hàng trăm năm tuổi có hệ thống rễ phụ đan cài chằng chịt, mở ra một không gian lý tưởng cho các hoạt động trekking mạo hiểm, dạo bộ bám ghềnh đá và nghiên cứu đa dạng sinh học dồi dào.\n\<b>Ý nghĩa văn hóa & Lịch sử truyền đời</b>: Di tích gắn liền với Sử thi dũng sĩ Đăm Ji huyền thoại của người Ê-đê. Truyền thuyết kể rằng vào một mùa hạn hán khốc liệt khiến buôn làng khốn cùng, chàng dũng sĩ Đăm Ji đã dùng nhát kiếm uy lực của mình bạt núi, vạch lối để khơi thông nguồn nước tạo nên thác Drai Dhul, và mũi kiếm găm xuống lòng đất đã mở rộng thung lũng đá thành lòng hồ sâu ôm lấy chân thác để nuôi sống buôn làng. Câu chuyện được truyền tụng qua nhiều mùa rẫy như một bài học sử thi vĩ đại về ý chí vượt nghịch cảnh, khát vọng sinh tồn và lời nhắc nhở thế hệ sau về lòng biết ơn tiền nhân.\n\<b>Thực hành bảo tồn</b>: Do tính chất đặc thù nằm ở vùng lõi nghiêm ngặt, khu vực này hoàn toàn không có sóng điện thoại hay dịch vụ thương mại tác động. Lực lượng kiểm lâm phối hợp chặt chẽ với cộng đồng cư dân buôn làng sở tại để duy trì quy chế quản lý lối ra vào; du khách khi bách bộ tham quan bắt buộc phải có sự hướng dẫn của đội tuần tra và tuân thủ nghiêm ngặt nguyên tắc bảo vệ môi trường, không xả rác hay bẻ cành hái thuốc để giữ gìn 'viên ngọc xanh' vẹn nguyên cho các đời sau.",
+ 
+  anh: ["images/thacbay-1.jpg",
+    "images/thacbay-2.jpg",
+    "images/thacbay-3.jpg",
+    "images/thacbay-4.jpg",
+  ],
+ 
+  video: "https://youtu.be/jicwBK_nKeU?si=Y1otYpILby7CBMVk",
+ 
+  amThanh: "",
+ 
+  loiKe: "",
+ 
+  nguoiKe: "",
+ 
+  amThanhNguon: "",
+ 
+  nam: "Được kiến tạo từ dòng chảy nghìn năm của suối Ea Đăh uốn lượn qua những cánh rừng rậm rạp trước khi đổ vào thung sâu.<b>Ngày 19/11/2019</b>, Ủy ban Nhân dân tỉnh Đắk Lắk chính thức ban hành Quyết định số 3479/QĐ-UBND xếp hạng Thác Bay là Di tích Danh lam thắng cảnh cấp tỉnh, ",
+ 
+  nguon: "https://www.daklakmuseum.vn/tin-tuc-su-kien/bai-viet/danh-lam-thang-canh-thac-bay,https://mia.vn/cam-nang-du-lich/thac-bay-buon-ma-thuot-14116, https://vhttdl.daklak.gov.vn/Articles/Detail/2726.",
+ 
+  tomTat: "Thác Bay Khu Bảo tồn thiên nhiên Ea Sô, xã Ea Knốp, tỉnh Đắk Lắk khoảng 80km về hướng Đông)."
+ 
+},
+ 
+{
+ 
+  ten: "Di tích Chiến thắng đèo M'Drắk – Phượng Hoàng 1975",
+ 
+  toaDo: {lat: 12.6569, lng: 108.9221},
+ 
+  moTa: "<b>Di tích lịch sử Chiến thắng tại Đèo M'Drắk – Phượng Hoàng năm 1975 là một 'địa chỉ đỏ' linh thiêng mang tầm vóc chiến lược của Chiến dịch Tây Nguyên lịch sử</b>.\n\n<b>Tên gọi & Cảnh quan</b>: Tên gọi di tích kết hợp giữa ngôn ngữ Ê-đê bản địa, cảnh quan thiên nhiên và chiến công năm 1975. Trong đó, “M'Drắk” đọc chệch từ M'Drăh – tên loại cây báng mọc bạt ngàn bên các triền suối cổ; còn “Phượng Hoàng” bắt nguồn từ hình dáng cung đèo uốn lượn uốn khúc quanh vách núi trông như một con chim phượng hoàng khổng lồ đang sải cánh. Danh xưng ghép này ghi dấu trận quyết chiến chiến lược từ 29/3 đến 01/4/1975 của Sư đoàn 10, đập tan 'lá chắn thép' cuối cùng của địch để mở toang cửa ngõ Đông Tây Nguyên, trải dài từ thị trấn M'Drắk đổ xuống chân đèo phía Dục Mỹ. Điểm nhấn trung tâm của di tích là cụm Nhà bia tưởng niệm <b>Liệt sỹ Sư đoàn 10 – Quân đoàn 3</b> được xây dựng trang nghiêm ngay dưới chân núi Vọng Phu huyền thoại (tại Km95 – Quốc lộ 26), tạo nên một không gian tưởng niệm vừa mang nét linh thiêng, trầm mặc, vừa hùng vĩ giữa lồng lộng gió ngàn Đông Trường Sơn.\n\<b>Đặc điểm cảnh quan & Địa chất</b>: Con đèo uốn lượn có tổng chiều dài khoảng 12km, vắt mình qua những vách núi đá bazan dựng đứng, hiểm trở và thung lũng sâu thẳm ngăn cách hai thềm khí hậu duyên hải miền Trung với cao nguyên đất đỏ. Địa chất vùng đèo mang đặc trưng đá núi dốc đứng với những khúc cua tay áo hiểm hóc tạo thành các điểm cao quân sự tự nhiên, nơi sương mù thường xuyên giăng phủ trắng xóa thung lũng vào sáng sớm và chiều tà, biến vùng đất này thành một đới cảnh quan kỳ vĩ vừa thơ mộng vừa gai góc.\n\<b>Giá trị du lịch & Sinh thái</b>: Từng bị hủy diệt nặng nề bởi bom đạn và chất độc hóa học của quân đội Mỹ trong chiến tranh, cung đèo Phượng Hoàng ngày nay đã hồi sinh mạnh mẽ với những cánh rừng bạt ngàn, đồi keo xanh mướt phủ kín vết thương xưa. Địa điểm mở ra tiềm năng lớn về du lịch về nguồn, kết hợp ngắm cảnh thiên nhiên mạo hiểm cho du khách chinh phục các cung đường đèo uốn lượn ngoạn mục nối liền chặng hành trình du lịch biển Nha Trang lên phố núi Buôn Ma Thuột.\n\<b>Ý nghĩa văn hóa & Lịch sử truyền đời</b>: Nơi đây ghi dấu chiến công hiển hách của Sư đoàn 10 cùng các lực lượng phối thuộc khi dùng lối đánh hiệp đồng binh chủng bạt núi, xuyên ngàn để đập tan 'lá chắn thép' kiên cố cuối cùng của địch, tiêu diệt hoàn toàn Lữ đoàn dù 3 tinh nhuệ vào ngày 01/4/1975. Chiến thắng oanh liệt này đã chọc thủng cánh cửa thép mở toang con đường hướng xuống đồng bằng, giải phóng tỉnh Khánh Hòa và tạo bàn đạp tiến tới thắng lợi hoàn toàn của mùa Xuân năm 1975. Đối với hậu thế, ngọn đồi và bia đá nơi chân đèo là trang giáo án sống động truyền lại ngọn lửa về tinh thần quyết chiến quyết thắng, sự hy sinh anh dũng của thế hệ cha anh và tinh thần đại đoàn kết dân tộc.\n\<b>Truyền thuyết & Thực hành bảo tồn</b>: Điểm đặc biệt của khu di tích là sự hòa quyện giữa lịch sử chiến tranh cách mạng với <b>Truyền thuyết núi Vọng Phu</b> — hình tượng người mẹ ôm con hóa đá thủy chung chờ chồng, nay lại bao bọc, che chở cho linh hồn các anh hùng liệt sĩ đang yên nghỉ dưới lòng đất mẹ. Để thực hành bảo tồn lâu dài, Đảng bộ, chính quyền địa phương cùng ban quản lý bảo tàng thường xuyên tổ chức các hoạt động dâng hương, giáo dục truyền thống 'Uống nước nhớ nguồn' cho thế hệ trẻ vào các dịp lễ lớn. Không gian di tích được nghiêm ngặt bảo vệ, cấm mọi hành vi xâm hại đất rừng quanh khu vực nhà bia và lòng đèo, đồng thời các nghệ nhân cùng cựu chiến binh tiếp tục sưu tầm, ghi chép những ký ức sống động về trận đánh nhằm làm phong phú thêm kho tàng lịch sử địa phương",
+ 
+  anh: 
+  ["images/Di tích Chiến thắng đèo MDrắk Phượng Hoàng 1975-7.webp",
+    "images/Di tích Chiến thắng đèo MDrắk Phượng Hoàng 1975-6.jpg",
+    "images/Di tích Chiến thắng đèo MDrắk Phượng Hoàng 1975-5.jpg",
+    "images/Di tích Chiến thắng đèo MDrắk Phượng Hoàng 1975-5 copy.jpg",
+    "images/Di tích Chiến thắng đèo MDrắk Phượng Hoàng 1975-4.jpg",
+    "images/Di tích Chiến thắng đèo MDrắk Phượng Hoàng 1975-3.png",
+    "images/Di tích Chiến thắng đèo MDrắk Phượng Hoàng 1975-3 copy.png",
+    "images/Di tích Chiến thắng đèo MDrắk Phượng Hoàng 1975-2.jpeg",
+    "images/Di tích Chiến thắng đèo MDrắk Phượng Hoàng 1975-1.jpeg"
+  ],
+ 
+  video: "https://youtu.be/Jef4aYJ2S_g",
+ 
+  amThanh: "",
+ 
+  loiKe: "",
+ 
+  nguoiKe: "",
+ 
+  amThanhNguon: "",
+ 
+  nam: "Công trình tâm linh này vinh dự được đón nhận Bằng xếp hạng Di tích lịch sử cấp Quốc gia vào <b>tháng 3/2025</b>",
+ 
+  nguon: "https://daklakmuseum.vn/tin-tuc-su-kien/bai-viet/di-tich-lich-su-chien-thang-tai--deo-mdrak---phuong-hoang-nam-1975, https://vhttdl.daklak.gov.vn/di-tich-lich-su-deo-mdrak-phuong-hoang-nam-1975-nhung-gia-tri-tiem-nang-can-duoc-bao-ton-va-phat-huy-13472.html, https://www.traveloka.com/vi-vn/explore/destination/deo-phuong-hoang-dak-lak/340309?utm_id=Pamlbfc2, https://mia.vn/cam-nang-du-lich/chinh-phuc-deo-phuong-hoang-hiem-tro-17716, https://www.baodaklak.vn/xa-hoi/202507/gio-ngan-nhac-mai-ten-anh-8c11a62/.",
+ 
+  tomTat: "Tọa lạc dọc theo Km95 Quốc lộ 26, xã Cư M'ta, tỉnh Đắk Lắk."
+ 
+},
+ 
+{
+ 
+  ten: "Thác Drai H'Jie",
+ 
+  toaDo: {lat: 12.5631, lng: 108.1481},
+ 
+  moTa: "<b>Di tích Danh lam thắng cảnh Thác Drai H'Jie là một tuyệt tác thiên nhiên hoang sơ, lưu giữ giai thoại tình yêu thủy chung của người Ê-đê bản địa</b>.\n\n<b>Tên gọi & Cảnh quan</b>: Trong tiếng Ê-đê bản địa, Drai (hoặc Dray) có nghĩa là thác nước, còn H'Jie là tên của một thiếu nữ. Drai H'Jie mang ý nghĩa là 'thác nước của nàng H'Jie' – người con gái đã hóa thân vào dòng chảy đại ngàn. Ngoài ra, thác còn được gọi dân dã là Suối Tiên vì bắt nguồn từ một 'suối nước đùn' ngầm dưới lòng đất, tuôn chảy trong vắt và mát lành giữa thung lũng núi rừng.\n\<b>Đặc điểm cảnh quan & Địa chất</b>: Thác hình thành từ sự hợp lưu của 3 dòng suối tự nhiên gồm Kŏ Kô, Kŏ Mơ Mai và Kŏ Khit, nằm cách đèo Giang Sơn khoảng 3 km đường chim bay. Nhờ địa thế nằm lọt thỏm giữa thung lũng của hai quả đồi nên thác có địa hình dốc thoải, phân chia cấu trúc thành 3 bậc đá bazan lớn cùng nhiều nhánh dòng chảy nhỏ len lỏi qua khe đá. Vào mùa mưa, nước đổ tràn qua các bậc đá tung bọt trắng xóa; đến mùa khô, dòng nước trở nên hiền hòa, êm ả với những phiến đá bằng phẳng nhô lên giữa lòng suối.\n\<b>Giá trị du lịch & Sinh thái</b>: Nằm khuất sâu sau những dãy đồi rẫy cà phê và hồ tiêu của huyện Cư Kuin (cách trung tâm Buôn Ma Thuột khoảng 25 km về phía Đông Nam), nơi đây giữ được nét hoang sơ, không khí trong lành và dịu mát quanh năm. Cảnh quan tự nhiên này mở ra không gian lý tưởng cho các hoạt động tham quan, dã ngoại cuối tuần, cắm trại ven suối và tìm hiểu hệ sinh thái thủy sinh địa phương .\n\<b>Ý nghĩa văn hóa & Lịch sử truyền đời</b>: Đối với hậu thế, Thác Drai H'Jie không chỉ là nguồn cung cấp mạch nước ngầm dồi dào cho đời sống nông nghiệp của buôn Ea Khít, mà còn là không gian lưu giữ ký ức văn hóa truyền miệng sâu sắc. Câu chuyện gắn liền với ngọn thác gửi gắm thông điệp nhân văn về lòng thủy chung, sự cảm thông trước những số phận chịu ràng buộc bởi lễ giáo hà khắc xưa cũ, đồng thời nhắc nhở con cháu biết trân trọng tình nghĩa con người và sự hòa hợp với thiên nhiên.\n\<b>Truyền thuyết & Thực hành bảo tồn</b>: Theo lời kể truyền đời của già làng, thác gắn liền với mối tình buồn đầy ngang trái giữa nàng H'Jie (con gái một tù trưởng giàu có, quyền thế) và chàng Y Rít (một thanh niên nghèo mồ côi cha mẹ). Vì sự phân biệt địa vị giàu nghèo và lễ giáo khắt khe của buôn làng ngăn cản, đôi trẻ không thể đến được với nhau; nàng H'Jie đau khổ gieo mình xuống dòng suối, linh hồn và giọt nước mắt của nàng hóa thành ngọn thác chảy mãi. Nhờ sự linh thiêng của giai thoại này, cộng đồng cư dân Ê-đê quanh lưu vực luôn tự giác thực hành các quy tắc bảo vệ nguồn nước, không chặt phá cây rừng đầu nguồn. Chính quyền địa phương cũng thường xuyên tuần tra, cắm biển bảo vệ di tích và nghiêm cấm hành vi xả rác hay lấn chiếm làm biến dạng cấu trúc 3 bậc đá tự nhiên của thác.",
+ 
+  anh: ["images/thach'jie-1.jpg","images/thach'jie-2.jpg","thach'jie-.jpg"],
+ 
+  video: "https://youtu.be/F9n1gGAVGvA?si=msh8-Cwb0zVuw1q7",
+ 
+  amThanh: "",
+ 
+  loiKe: "",
+ 
+  nguoiKe: "",
+ 
+  amThanhNguon: "",
+ 
+  nam: "Danh thắng này chính thức được Ủy ban Nhân dân tỉnh Đắk Lắk xếp hạng di tích cấp tỉnh vào ngày 17/04/2012",
+ 
+  nguon: "https://www.daklakmuseum.vn/tin-tuc-su-kien/bai-viet/thac-drai-hjie,https://vi.wikipedia.org/wiki/Th%C3%A1c_Dray_H%27Jie, https://www.facebook.com/100071991865133/posts/s%E1%BB%B1-t%C3%ADch-th%C3%A1c-dray-hjie-hay-c%C3%B2n-g%E1%BB%8Di-l%C3%A0-su%E1%BB%91i-ti%C3%AAn-bu%C3%B4n-ea-kh%C3%ADt-x%C3%A3-ea-bh%C3%B4kdray-hjie/284297855830365/.",
+ 
+  tomTat: "Buôn Ea Khít, xã Dray Bhăng, tỉnh Đắk Lắk."
+ 
+},
+ 
+{
+ 
+  ten: "Hang đá Khuê Ngọc Điền",
+ 
+  toaDo: {lat: 12.5122, lng: 108.3842},
+ 
+  moTa: "<b>Quần thể Hang đá Khuê Ngọc Điền ( được ví như một 'pháo đài ngầm' bất khả xâm phạm dưới chân dãy Chư Yang Sin, là chiếc nôi cách mạng của những người con đất Quảng trên vùng cao nguyên</b>.\n\n<b>Tên gọi & Cảnh quan</b>: Di tích mang tên của xã Khuê Ngọc Điền – vùng đất hình thành từ cuộc cưỡng ép di dân của chính quyền Ngô Đình Diệm trước năm 1975, đưa hàng ngàn người dân từ Quảng Nam, Quảng Ngãi lên khai hoang. Ngoài tên hành chính, nơi đây còn gắn với tên từng hang cụ thể như Hang đá Ông Bổ, Hang đá Thôn 1 hay được ca ngợi là 'Pháo đài ngầm dưới chân dãy Chư Yang Sin'. Cảnh quan khu vực mang nét hoang sơ, hiểm trở với hàng trăm khối đá khổng lồ nằm ẩn mình dưới tán rừng rậm rạp trên sườn đồi phía Nam dãy núi.\n\<b>Đặc điểm cảnh quan & Địa chất</b>: Địa chất khu vực cấu tạo chủ yếu từ đá granit và đá núi lớn xếp chồng tự nhiên lên nhau, tạo thành vô số ngóc ngách, hầm ngầm thông nhau chằng chịt như một lô cốt kiên cố. Tiêu biểu nhất là Hang đá Ông Bổ có diện tích khoảng 60 m² với sức chứa 30 – 40 người cùng vũ khí, lương thực; kế bên là Hang đá Thôn 1 có cửa hang hẹp, vị trí khuất nẻo, đóng vai trò như một chốt chỉ huy và quan sát chiến lược trước mọi đợt càn quét, ném bom.\n\<b>Giá trị du lịch & Sinh thái</b>: Nằm ở vùng đệm của Vườn Quốc gia Chư Yang Sin, di tích sở hữu bầu không khí trong lành, mát mẻ quanh năm cùng hệ sinh thái rừng núi đặc trưng. Địa điểm này có tiềm năng lớn để phát triển loại hình du lịch 'về nguồn' kết hợp trekking khám phá địa chất, đồng thời dễ dàng kết nối thành chuỗi tham quan liên hoàn với Di tích Quốc gia Hang đá Đắk Tuôr và thắng cảnh Thác Krông Kmar lân cận.\n\<b>Ý nghĩa văn hóa & Lịch sử truyền đời</b>: Trong suốt gần một thập kỷ kháng chiến (1966 – 1975), những vách đá lạnh lẽo nơi đây đã hóa thành 'mái nhà chung' che chở an toàn cho cán bộ, du kích bám trụ đánh giặc. Đối với thế hệ mai sau, di tích là một 'địa chỉ đỏ' giáo dục truyền thống yêu nước, ý chí quật cường vượt qua nghịch cảnh và tinh thần đại đoàn kết máu thịt giữa đồng bào miền Trung di dân với đồng bào Ê-đê, M'nông bản địa.\n\<b>Truyền thuyết & Thực hành bảo tồn</b>: Lịch sử nơi đây lưu truyền những câu chuyện xúc động về sự hy sinh thầm lặng của nhân dân: ban ngày bà con làm rẫy dưới chân đồi để đánh lạc hướng địch, ban đêm các mẹ, các chị lại bí mật gùi từng nắm cơm, ống muối luồn rừng lên hang tiếp tế nuôi giấu bộ đội. Để thực hành bảo tồn giá trị này, chính quyền địa phương đã thực hiện cắm mốc khoanh vùng bảo vệ nguyên trạng quần thể đá và rừng tự nhiên, đồng thời đưa tư liệu lịch sử vào các buổi sinh hoạt truyền thống cho học sinh và thanh niên địa phương.",
+ 
+  anh: ["images/hangdakhuengocdien-1.jpg",
+    "images/hangdakhuengocdien-2.jpeg",
+    "images/hangdakhuengocdien-3.jpg",
+    "images/hangdakhuengocdien-4.jpg",
+    "images/hangdakhuengocdien-5.png"
+  ],
+ 
+  video: "https://youtu.be/e9l78mEt6IQ?si=aBXOAg7_ywWDt0V-",
+ 
+  amThanh: "",
+ 
+  loiKe: "",
+ 
+  nguoiKe: "",
+ 
+  amThanhNguon: "",
+ 
+  nam: " Quần thể hang đá được kiến tạo tự nhiên từ hàng triệu năm trước cùng sự hình thành của dãy Chư Yang Sin. Trong giai đoạn 1966 – 1975, nơi đây được thành lập làm căn cứ địa cách mạng bí mật của quân và dân địa phương. Đến ngày 27/01/2015, Ủy ban Nhân dân tỉnh Đắk Lắk chính thức xếp hạng nơi này là Di tích lịch sử cấp tỉnh ",
+ 
+  nguon: "https://vhttdl.daklak.gov.vn/Articles/Detail/9854, https://baodaklak.vn/kinh-te/202201/dien-mao-moi-o-vung-can-cu-khue-ngoc-dien-7a6195a/, https://www.youtube.com/watch?v=e9l78mEt6IQ, https://daklakmuseum.vn/giao-duc/bai-viet/di-tich-cap-tinh-?lng=vi.",
+ 
+  tomTat: "Xã Krông Bông, tỉnh Đắk Lắk."
+ 
+},
+ 
+{
+ 
+  ten: "Hồ Lắk và Biệt điện Bảo Đại Hồ Lắk",
+ 
+  toaDo: {lat: 12.4139, lng: 108.1741},
+ 
+  moTa: "<b>Quần thể Di tích Danh lam thắng cảnh Quốc gia Hồ Lắk và Biệt điện Bảo Đại Hồ Lắk là sự kết hợp hoàn hảo giữa kỳ quan thiên nhiên đại ngàn và dấu ấn lịch sử hoàng gia</b>.\n\n<b>Tên gọi & Cảnh quan</b>.: Trong tiếng bản địa của người M'nông, từ “Lắk” có nghĩa là “Nước”; ngoài ra hồ còn có tên gọi khác là hồ Lạc Thiện. Hồ được hình thành hoàn toàn tự nhiên từ hàng triệu năm trước do kiến tạo địa chất và các mạch nước ngầm trên dãy Chư Yang Sin. Ngay bên bờ hồ, trên ngọn đồi Lạc Thiện cao 422 m là Biệt điện Bảo Đại – công trình được khởi công xây dựng vào năm 1951 do Nam Phương Hoàng hậu trực tiếp theo dõi và quản lý thi công để làm nơi nghỉ dưỡng, săn bắn cho cựu hoàng. Tổng thể nơi đây tạo nên một bức tranh thủy mặc lộng lẫy khi mặt hồ rộng hơn 500 ha nằm ở độ cao trên 500 m so với mực nước biển, được bao bọc bởi những dãy núi cao ngút ngàn, các buôn làng truyền thống (buôn Jun, buôn M'Liêng) và tầm nhìn bao quát từ đỉnh đồi biệt điện.\n<b> Đặc điểm cảnh quan & Địa chất</b>: Hồ Lắk là hồ nước ngọt tự nhiên lớn nhất Tây Nguyên và lớn thứ hai Việt Nam (chỉ sau hồ Ba Bể). Hồ bắt nguồn từ một mạch nước phun ẩn sâu trong dãy Chư Yang Sin và thông dòng với sông Krông Ana. Vào mùa mưa, nước hồ dâng cao tràn ngập các cánh đồng lúa nước ven chân đồi; sang mùa khô, phù sa lắng xuống trả lại mặt nước trong xanh. Ngôi biệt điện bên hồ mang kiến trúc hiện đại thời kỳ 1950 với kết cấu 3 tầng (mặt trước cao, mặt sau xuôi thấp), sử dụng vật liệu bê tông, gạch, gỗ quý và hệ thống cửa kính lớn giúp đón trọn ánh sáng tự nhiên và gió hồ.\n<b> Đặc điểm cảnh quan & Địa chất</b>: Hồ Lắk là hồ nước ngọt tự nhiên lớn nhất Tây Nguyên và lớn thứ hai Việt Nam (chỉ sau hồ Ba Bể). Hồ bắt nguồn từ một mạch nước phun ẩn sâu trong dãy Chư Yang Sin và thông dòng với sông Krông Ana. Vào mùa mưa, nước hồ dâng cao tràn ngập các cánh đồng lúa nước ven chân đồi; sang mùa khô, phù sa lắng xuống trả lại mặt nước trong xanh. Ngôi biệt điện bên hồ mang kiến trúc hiện đại thời kỳ 1950 với kết cấu 3 tầng (mặt trước cao, mặt sau xuôi thấp), sử dụng vật liệu bê tông, gạch, gỗ quý và hệ thống cửa kính lớn giúp đón trọn ánh sáng tự nhiên và gió hồ.\n<b>Giá trị du lịch & Sinh thái</b>: Hồ Lắk là túi chứa nước ngọt khổng lồ giúp điều hòa khí hậu mát mẻ quanh năm, tưới tiêu cho hàng trăm hecta ruộng nương và cung cấp nguồn thủy sản dồi dào (như cá thác lác, tôm, ốc...) cho cả vùng. Nơi đây là trung tâm du lịch sinh thái – văn hóa trọng điểm với nhiều trải nghiệm đặc sắc như chèo thuyền độc mộc ngắm bình minh trên hồ, đi bộ khám phá buôn Jun, thưởng thức ẩm thực bản địa và lưu trú tại khu biệt điện cổ đã được trùng tu.\n<b>Ý nghĩa văn hóa & Lịch sử truyền đời</b>: Cụm di tích là sự giao thoa giữa hai dòng chảy lịch sử: một bên là không gian sinh tồn ngàn đời của đồng bào M'nông Rlăm với văn hóa nhà dài, cồng chiêng và nghề thuần dưỡng voi rừng; một bên là dấu ấn lịch sử cận đại gắn liền với cuộc đời cựu hoàng Bảo Đại trong giai đoạn làm Quốc trưởng (1949–1954). Đối với thế hệ mai sau, nơi đây truyền tải thông điệp sâu sắc về sự hòa hợp giữa con người với thiên nhiên đại ngàn và lưu giữ bản sắc văn hóa bản địa nguyên bản.\n<b>Truyền thuyết & Thực hành bảo tồn</b>: Hồ Lắk gắn liền với hệ thống truyền thuyết 'sinh đất, sinh nước' đầy kỳ bí của người M'nông kể về cuộc giao chiến long trời lở đất giữa Thần Lửa và Thần Nước tạo nên lòng hồ sâu thẳm, cũng như giai thoại về chàng dũng sĩ Y Lắk dũng cảm tìm nguồn nước cứu buôn làng. Để thực hành bảo tồn bền vững, chính quyền địa phương thực hiện khoanh vùng bảo vệ nghiêm ngặt vùng lõi danh thắng quốc gia, kiểm soát hoạt động đánh bắt thủy sản theo mùa, hạn chế du lịch cưỡi voi để bảo vệ phúc lợi động vật, đồng thời trùng tu nguyên trạng kiến trúc Biệt điện Bảo Đại phục vụ giáo dục di sản",
+ 
+  anh: 
+  ["images/Biệt điện Bảo Đại t9410802166-9.jpeg",
+    "images/Biệt điện Bảo Đại trên hồ Lăk-1.jpg",
+    "images/Biệt điện Bảo Đại trên hồ Lăk-2.jpg",
+    "images/Biệt điện Bảo Đại trên hồ Lăk-3.jpg",
+    "images/Biệt điện Bảo Đại trên hồ Lăk-4.jpg",
+    "images/Biệt điện Bảo Đại trên hồ Lăk-5.jpg",
+    "images/Biệt điện Bảo Đại trên hồ Lăk-6.webp",
+    "images/Biệt điện Bảo Đại trên hồ Lăk-7.webp",
+    "images/Biệt điện Bảo Đại trên hồ Lăk-8.webp"
+  ],
+ 
+  video: "https://youtube.com/shorts/UaU74WBScJY?si=dlpK9jNR3DTeHKdm",
+ 
+  amThanh: "",
+ 
+  loiKe: "",
+ 
+  nguoiKe: "",
+ 
+  amThanhNguon: "",
+ 
+  nam: "Bộ Văn hóa - Thông tin chính thức xếp hạng là Di tích Danh lam thắng cảnh cấp Quốc gia vào ngày 11/05/1993 (theo Quyết định số 534/QĐ/BT).  Biệt điện Bảo Đại – công trình được khởi công xây dựng vào năm 1951",
+ 
+  nguon: "http://dulichdaklak.gov.vn/di-tich-danh-lam-thang-canh-quoc-gia-ho-lak-6008.html, https://www.daklakmuseum.vn/tin-tuc-su-kien/bai-viet/ho-lak, https://vnexpress.net/biet-dien-bao-dai-ben-ho-lak-4393734.html,https://thanhnien.vn/chiem-nguong-biet-dien-bao-dai-o-ho-lak-185241110224321855.htm.",
+ 
+  tomTat: "Tọa lạc tại đồi Lạc Thiện, xã Liên Sơn Lắk, tỉnh Đắk Lắk."
+ 
+},
+ 
+{
+ 
+  ten: "Thác Dray Sáp Thượng (Thác Gia Long)",
+ 
+  toaDo: {lat: 12.5348, lng: 107.9159},
+ 
+  moTa: "<b>Di tích Danh lam thắng cảnh Quốc gia Thác Dray Sáp Thượng (Thác Gia Long) là một tuyệt tác địa chất nguyên sơ kết hợp hài hòa giữa truyền thuyết bản địa và dấu ấn lịch sử hoàng gia</b>.\n\n<b>Tên gọi  & Cảnh quan</b>: Thác được hình thành tự nhiên từ hàng triệu năm trước. Theo tiếng bản địa Ê-đê, Dray có nghĩa là thác, còn Sáp có nghĩa là khói; Dray Sáp Thượng mang ý nghĩa là 'ngọn thác khói nằm ở phía thượng nguồn' (để phân biệt với thác Dray Sáp ở hạ nguồn). Tên gọi Thác Gia Long gắn liền với dấu ấn lịch sử triều Nguyễn: có tư liệu ghi nhận nơi đây từng gắn với hành trình bôn ba của vua Gia Long (Nguyễn Ánh), trong khi hồ sơ di tích của Bảo tàng tỉnh Đắk Lắk xác nhận chính cựu hoàng Bảo Đại trong chuyến du ngoạn, săn bắn giai đoạn 1935 – 1936 đã đặt tên thác theo vị hoàng đế khai quốc của dòng họ mình.\n<b>Đặc điểm cảnh quan & Địa chất</b>: Nằm cách thác Dray Nur khoảng 3 km về phía thượng nguồn, ngọn thác sở hữu cấu trúc địa chất vô cùng đặc sắc với những cột đá bazan lăng trụ vuông vức xếp khít nhau thẳng đứng (tương tự như Ghềnh Đá Đĩa) được hình thành từ dung nham núi lửa phun trào hàng triệu năm trước. Bề mặt thác rộng từ 70m đến 100m, độ cao vách đổ từ 8m đến 30m tùy đoạn. Vào mùa mưa, nước đổ ầm ầm tạo thành một bức tường nước khổng lồ tung bụi mù như làn khói; đến mùa khô, dòng nước lắng trong xanh màu ngọc bích và tách thành nhiều nhánh suối nhỏ len lỏi qua khe đá (thường được gọi là thác 9 nhánh) đổ xuống 'hồ Tắm Tiên' rộng khoảng 80 m² ngay dưới chân thác.\n<b>Giá trị du lịch & Sinh thái</b>: Được bao bọc bởi hệ sinh thái rừng đặc dụng thuộc quần thể cụm 3 thác Dray Sáp – Dray Nur – Gia Long rộng hơn 1.655 ha, nơi đây giữ được bầu không khí mát mẻ, trong lành quanh năm với thảm thực vật rừng nhiệt đới xanh tốt. Cảnh quan nguyên sơ này rất lý tưởng cho các hoạt động cắm trại qua đêm, đi bộ xuyên rừng (trekking), chèo thuyền kayak trên dòng Sêrêpốk và trải nghiệm ngâm mình trong làn nước khoáng mát lành của hồ Tắm Tiên vào mùa khô.\nÝ nghĩa văn hóa & Lịch sử truyền đời: Ngoài giá trị tự nhiên, khu vực thác còn lưu giữ những dấu tích lịch sử cận đại quan trọng từ thập niên 1930, bao gồm đường hầm nhân tạo xuyên núi, hệ thống kè đá và hai mố cầu treo bằng bê tông kiên cố do người Pháp xây dựng (giai đoạn 1930 – 1933) để phục vụ tuyến giao thông huyết mạch thời thuộc địa. Đối với thế hệ mai sau, thắng cảnh này là sự giao thoa độc đáo giữa văn hóa sử thi của người Ê-đê bản địa, dấu ấn triều đại phong kiến nhà Nguyễn và ký ức lịch sử vùng cao nguyên Đắk Lắk.\n<b>Truyền thuyết & Thực hành bảo tồn</b>: Trong kho tàng văn hóa dân gian Ê-đê, thác gắn liền với sự tích <b>nàng H'Mi và con quái vật</b>. Chuyện xưa kể rằng khi nàng H'Mi đang dạo chơi bên dòng suối cùng người yêu thì một con quái vật khổng lồ xuất hiện cuốn nàng đi mất; chàng trai đau khổ khóc thương đến mức hóa thành ngọn thác Dray Sáp Thượng sừng sững muôn đời như lời thề chung thủy và sự che chở của thiên nhiên. Về thực hành bảo tồn, dù dòng chảy tự nhiên có phần thay đổi do tác động của công trình thủy điện Buôn Kuốp cách đó khoảng 2 km về phía thượng nguồn, ban quản lý khu di tích và chính quyền địa phương vẫn phối hợp tuần tra nghiêm ngặt, duy trì quy chế bảo vệ rừng nguyên sinh, cắm biển cảnh báo an toàn mùa mưa lũ và tuyên truyền du khách giữ gìn vệ sinh môi trường nhằm bảo tồn vẹn nguyên vẻ đẹp hoang sơ của di sản.",
+ 
+  anh: ["images/thacgialong-2.jpg",
+"images/thacgialong-3.jpg"],
+ 
+  video: "https://youtu.be/ouswyw5tpDg?si=eG0tlz7OUMRDEgU5",
+ 
+  amThanh: "",
+ 
+  loiKe: "",
+ 
+  nguoiKe: "",
+ 
+  amThanhNguon: "",
+ 
+  nam: "Thác được hình thành tự nhiên từ hàng triệu năm trước và chính thức được Bộ Văn hóa - Thông tin xếp hạng là Di tích Danh lam thắng cảnh cấp Quốc gia vào ngày 04/01/1999 theo Quyết định số 01/1999/QĐ-BVHTT",
+ 
+  nguon: "https://www.daklakmuseum.vn/tin-tuc-su-kien/bai-viet/di-tich-thang-canh-thac-dray-sap-thuong, https://vi.wikipedia.org/wiki/Th%C3%A1c_Gia_Long, https://thanhnien.vn/nhung-tuyet-tac-thien-nhien-thac-nuoc-mang-ten-vua-gia-long-18525053121434649.htm, http://dulichdaklak.gov.vn/di-tich-danh-lam-thang-canh-quoc-gia-thac-dray-sap-thuong-6015.html.",
+ 
+  tomTat: "Buôn Kuốp, xã Dray Sáp, tỉnh Đắk Lắk (hoặc phần giáp ranh xã Ea Na, tỉnh Đắk Lắk)."
+ 
+},
+ 
+{
+ 
+  ten: "Thác Drai Nur",
+ 
+  toaDo: {lat: 12.5292, lng: 107.9048},
+ 
+  moTa: "<b>Di tích Danh lam thắng cảnh Quốc gia Thác Drai Nur hay “Bức tường nước khổng lồ của dòng Sêrêpốk” là một trong những ngọn thác hùng vĩ và nổi tiếng bậc nhất Tây Nguyên</b>.\n\n<b>Tên gọi & Cảnh quan</b>: Theo hồ sơ khoa học của người Ê-đê bản địa, Drai có nghĩa là thác, còn Nur (gọi tắt từ chữ Anur) có nghĩa là con Dúi; Drai Nur mang ý nghĩa gốc là “Thác con Dúi”. Ngoài ra, trong văn hóa đại chúng, cái tên này còn được diễn giải là “Thác Cái” (do được tạo thành từ dòng sông cái Krông Ana). Ngọn thác được hình thành tự nhiên từ hàng triệu năm trước ở vị trí trung nguồn thuộc hệ thống cụm 3 thác Gia Long – Dray Nur – Dray Sáp của dòng sông chảy ngược Sêrêpốk.\n<b>Đặc điểm cảnh quan & Địa chất</b>: Thác sở hữu quy mô đồ sộ với chiều dài vách đá hơn 250 m (có thể mở rộng trên 300 m vào mùa nước lớn), chiều cao trung bình khoảng 30 m và trải rộng khoảng 150 m. Điểm nhấn địa chất độc đáo nhất của Drai Nur là hang động tự nhiên rộng gần 3.000 m² ẩn giấu ngay phía sau màn nước đổ. Vào mùa mưa, dòng nước từ trên cao đổ ập xuống tạo thành một bức màn nước trắng xóa khổng lồ như một bức tường thành vững chãi; sang mùa khô, dòng chảy chia thành nhiều nhánh nhỏ len lỏi qua các phiến đá bazan cổ, để lộ lối đi giúp du khách có thể bước xuyên qua màn nước vào khám phá lòng hang động mát lạnh bên trong.\n<b>Giá trị du lịch & Sinh thái</b>: Nằm trong quần thể rừng đặc dụng rộng lớn với hệ sinh thái rừng nhiệt đới xanh tốt quanh năm, khu vực thác giữ được bầu không khí trong lành, mát mẻ. Nơi đây được quy hoạch thành khu du lịch sinh thái bài bản, mở ra không gian lý tưởng cho các hoạt động cắm trại, dã ngoại, trekking xuyên rừng, đạp xe địa hình, chèo thuyền kayak trên dòng Sêrêpốk và trải nghiệm văn hóa cồng chiêng, ẩm thực bản địa tại buôn Kuốp liền kề.\n<b>Ý nghĩa văn hóa & Lịch sử truyền đời</b>: Đối với đồng bào Tây Nguyên, sự hợp lưu giữa sông Krông Ana (sông Cái) và sông Krông Nô (sông Đực) tạo nên dòng Sêrêpốk và ngọn thác Drai Nur là biểu tượng thiêng liêng cho sự giao hòa âm dương, tình nghĩa vợ chồng thủy chung son sắt. Di tích là không gian lưu giữ ký ức văn hóa sử thi bên bếp lửa nhà dài, răn dạy thế hệ mai sau bài học nhân văn sâu sắc về việc xóa bỏ hận thù, sự ích kỷ giữa các dòng tộc để trân trọng tình yêu thương và sống chan hòa cùng tự nhiên.\n<b>Truyền thuyết & Thực hành bảo tồn</b>: Kho tàng dân gian tại đây lưu giữ hai truyền thuyết nổi tiếng. Truyền thuyết thứ nhất kể về mối tình 'Romeo và Juliet của núi rừng' giữa một đôi trai gái thuộc hai buôn có thù hằn nhau; vì bị ngăn cấm quyết liệt, cả hai đã gieo mình xuống sông để trọn đời bên nhau, khiến trời nổi giông bão chia dòng sông thành hai nhánh tạo nên thác Vợ (Drai Nur) và thác Chồng (Dray Sáp). Truyền thuyết thứ hai lý giải tên gọi gốc kể về chàng hoàng tử Nur (con vua Thủy Tề) biến thành chú dúi vàng lén chui qua màn nước vào hang thăm cha rồi không quay trở lại, khiến người vợ hóa đá ngóng chờ. Về thực hành bảo tồn, ban quản lý khu du lịch và chính quyền địa phương thực hiện khoanh vùng bảo vệ nghiêm ngặt cảnh quan địa chất hang động, giữ gìn diện tích rừng đặc dụng xung quanh, lắp đặt hệ thống cảnh báo an toàn mùa lũ và tuyên truyền du khách bảo vệ môi trường dòng sông Sêrêpốk",
+ 
+  anh: ["thacdrainur-1.jpg",
+"thacdrainur-5.jpg",
+"images/thacdrainur-4.webp",
+"thacdrainur-5.webp",
+"images/thacdrainur-3.webp"
+],
+ 
+  video: "https://youtu.be/wiaaEXxA394",
+ 
+  amThanh: "",
+ 
+  loiKe: "",
+ 
+  nguoiKe: "",
+ 
+  amThanhNguon: "",
+ 
+  nam: "Ngọn thác được hình thành tự nhiên từ hàng triệu năm trước. Đến ngày 25/01/2011, Bộ Văn hóa, Thể thao và Du lịch chính thức ban hành Quyết định số 326/QĐ-BVHTTDL xếp hạng Thác Drai Nur là Di tích Danh lam thắng cảnh cấp Quốc gia",
+ 
+  nguon: "https://www.daklakmuseum.vn/tin-tuc-su-kien/bai-viet/danh-lam-thang-canh-thac-drai-nur, https://vi.wikipedia.org/wiki/Th%C3%A1c_%C4%90ray_Nur, http://ttvhdl.vhttdl.daklak.gov.vn/kham-pha-thac-dray-nur-ve-dep-hung-vi-giua-nui-rung-tay-nguyen-2314.html, http://ttvhdl.vhttdl.daklak.gov.vn/du-lich-viet-nam-thac-dray-nur-ve-dep-hung-vi-giua-dai-ngan-tay-nguyen-5591.html.",
+ 
+  tomTat: "Buôn Kuốp, xã Dray Sáp, tỉnh Đắk Lắk."
+ 
+},
+ 
+{
+ 
+  ten: "Nhà sàn cổ Ama Kông",
+ 
+  toaDo: {lat: 12.8942, lng: 107.8286},
+ 
+  moTa: "<b>Nhà sàn cổ Ama Kông hay 'Bảo tàng sống về nghề săn bắt và thuần dưỡng voi rừng' là một công trình kiến trúc gỗ nguyên bản độc đáo bậc nhất Tây Nguyên, gắn liền với cuộc đời huyền thoại của ba thế hệ 'Vua săn voi' lừng danh trên mảnh đất Bản Đôn</b>.\n\n<b>Tên gọi & Cảnh quan</b>: Ngôi nhà được khởi công xây dựng từ tháng 10/1883 đến tháng 2/1885 do ông Y Thu Knul (1828 – 1938, người khai phá lập nên Bản Đôn và được vua Xiêm phong tước hiệu Khun Yu Nốp – Vua săn voi) đứng ra tạo dựng. Sau đó, ngôi nhà được truyền lại cho con rể là Ama Pợ Pho Khăm Súc và người cháu kiệt xuất là Y Prông Êban (tên gọi thân mật theo luật tục là Ama Kông – nghĩa là cha của Kông, 1910 – 2012), nên người dân quen gọi là Nhà sàn cổ Ama Kông. Tọa lạc lặng lẽ dưới những tán cây cổ thụ rợp bóng mát bên dòng sông Sêrêpốk thơ mộng, ngôi nhà tạo nên một không gian hoài cổ, uy nghiêm mang đậm bản sắc giao thoa văn hóa Lào – M'nông – Ê-đê.\n<b>Đặc điểm cảnh quan & Địa chất</b>: Ngôi nhà được thiết kế theo kiến trúc chùa tháp cổ của phong tục Lào – Thái với kết cấu 3 gian song song và 3 đỉnh mái chóp nhọn vút cao, do nghệ nhân điêu khắc gỗ người Lào tên Tha Vi Vông Khăm Sao làm thợ cả cùng 14 thợ lành nghề thi công. Để hoàn thành công trình, chủ nhân đã phải huy động 18 con voi kéo gỗ liên tục trong rừng sâu và chi trả giá trị tương đương 12 con voi đực trưởng thành. Toàn bộ kết cấu từ cột kèo, vách ngăn đến sàn nhà đều làm hoàn toàn bằng các loại gỗ quý như cà chít, hương, căm xe; đặc biệt phần mái được lợp thủ công bằng 8.726 thanh ngói gỗ cà chít (tiêu tốn gần 10 m³ gỗ) đẽo gọt tỉ mỉ giúp không gian bên trong luôn mát mẻ về mùa hè và ấm áp về mùa đông.\n<b>Giá trị du lịch & Sinh thái</b>: Nằm gần cửa ngõ Vườn Quốc gia Yok Đôn và quần thể du lịch Cầu Treo Buôn Đôn, ngôi nhà sàn hơn 140 năm tuổi là điểm dừng chân văn hóa không thể thiếu trong hành trình khám phá Tây Nguyên. Đến đây, du khách không chỉ được chiêm ngưỡng kỹ thuật chạm khắc gỗ tinh xảo của thế kỷ XIX mà còn được nghe con cháu đời sau kể chuyện săn voi, tham quan khu vườn thuốc quý xung quanh nhà và thưởng thức bài thuốc gia truyền nổi tiếng của gia tộc Ama Kông.\n<b>Ý nghĩa văn hóa & Lịch sử truyền đời</b>: Ngôi nhà là một 'kho tàng kỷ vật sống' lưu giữ trọn vẹn lịch sử huy hoàng của nghề săn bắt, thuần dưỡng voi rừng Bản Đôn. Bên trong gian nhà chính vẫn bảo tồn nguyên vẹn nhiều báu vật vô giá như: bộ dây da trâu rừng dài gần 120 mét (bện từ da của 7 con trâu đực mộng dùng để trói voi), chiếc mâm đồng cổ từ Lào (năm 1859), thanh kiếm báu do vua Bảo Đại trao tặng, cùng hình ảnh và giấy khen của Chủ tịch Hồ Chí Minh tặng Ama Kông vào năm 1954. Đối với thế hệ mai sau, nơi đây là biểu tượng cho lòng dũng cảm, trí tuệ chinh phục thiên nhiên và sự gắn kết bền chặt giữa con người với loài voi đại ngàn.\n<b>Câu chuyện & Bảo tồn lịch sử</b>: Lịch sử ngôi nhà gắn liền với những huyền thoại kỳ thú của hai vị Vua voi: ông tổ Y Thu Knul cả đời săn được hơn 400 con voi (trong đó có voi trắng quý hiếm dâng tặng vua Xiêm), còn truyền nhân Ama Kông lập kỷ lục Việt Nam khi săn được 298 con voi rừng (gồm 3 bạch tượng). Trong chuyến săn cuối cùng vào năm 1996, ông bắt được 7 con voi rồi chính thức gác lại nghề săn, chuyển sang làm chuyên gia huấn luyện voi cho Vườn Quốc gia Yok Đôn. Hiện nay, con cháu gia tộc Ama Kông cùng chính quyền địa phương vẫn tiếp tục sinh sống, gìn giữ và tu bổ nguyên trạng kiến trúc gỗ trăm tuổi, đồng thời chuyển đổi tư duy từ khai thác sang bảo tồn đàn voi nhà, đưa câu chuyện di sản vào phục vụ du lịch văn hóa bền vững",
+ 
+  anh:
+   ["images/nhasanco-1.jpg",
+    "images/nhasanco-2.jpg",
+    "nhasanco-3.jpg",
+    "nhasanco-4.jpg",
+    "nhasanco-5.jpg",
+    "nhasanco-6.jpg",
+    "nhasanco-7.jpg",
+    "nhasanco-8.jpg",
+    "nhasanco-9.jpg",
+    "nhasanco-10.jpg",
+    "nhasanco-11.jpg",
+   ],
+ 
+  video: "https://youtu.be/NzNXfiqd9i0",
+ 
+  amThanh: "",
+ 
+  loiKe: "",
+ 
+  nguoiKe: "",
+ 
+  amThanhNguon: "",
+ 
+  nam: "Ngôi nhà được khởi công xây dựng từ tháng 10/1883 đến tháng 2/1885 ",
+ 
+  nguon: "https://nhandan.vn/doc-dao-nha-san-co-cua-vua-voi-post907536.html, https://danviet.vn/nha-san-co-tram-nam-tuoi-cua-vua-voi-huyen-thoai-20220815184316344-d1037540.html,https://nhandan.vn/doc-dao-nha-san-co-cua-vua-voi-post907536.html,https://dantri.com.vn/kham-pha/tham-nha-san-co-tren-100-nam-tuoi-cua-vua-san-voi-buon-don-20150729103418324.htm,https://vnexpress.net/can-nha-san-hon-130-tuoi-cua-vua-voi-buon-don-4272477.html,.",
+ 
+  tomTat: "Tọa lạc tại Bản Đôn, xã Buôn Đôn, tỉnh Đắk Lắk."
+ 
+},
+ 
+{
+ 
+  ten: "Khu lăng mộ Vua Voi Khun Yu Nốp",
+ 
+  toaDo: {lat: 12.9037, lng: 107.8344},
+ 
+  moTa: "<b>Khu lăng mộ Vua Voi Khun Yu Nốp hay “Nghĩa địa của những dũng sĩ Gru lừng danh” là một di sản kiến trúc nhà mồ độc đáo bậc nhất Tây Nguyên, nơi yên nghỉ của vị tù trưởng huyền thoại khai sinh ra vùng đất Bản Đôn</b>.\n\n<b>Tên gọi & Cảnh quan</b>: Di tích mang tước hiệu Khun Yu Nốp (hay Khunjunob, trong tiếng Lào – Thái có nghĩa là “Vua săn voi”) do Hoàng gia Xiêm La (Thái Lan) sắc phong cho tù trưởng Y Thu Knul (1828 – 1938) sau khi ông săn được bạch tượng quý hiếm dâng tặng nhà vua vào năm 1861. Khu lăng mộ được hình thành vào khoảng năm 1938 – 1939 sau khi cụ Y Thu Knul qua đời (thọ 110 tuổi) và làm lễ bỏ mả theo phong tục. Nằm trầm mặc dưới tán rừng cổ thụ nguyên sinh sát cửa ngõ Vườn Quốc gia Yok Đôn, không gian khu mộ mang vẻ đẹp tĩnh mịch, uy nghiêm và linh thiêng.\n<b>Đặc điểm cảnh quan & Địa chất</b>: Nằm trên vùng địa hình đồi thoải ven sông Sêrêpốk với nền đất pha cát đặc trưng của vùng rừng khộp Buôn Đôn, quần thể gồm hai ngôi lăng mộ xây gạch liền kề mang sự giao thoa kiến trúc đa văn hóa:Lăng mộ của Vua voi Y Thu Knul: Do người cháu kế tục là R'leo K'Nul xây dựng theo mô-típ hình khối vuông vức tựa kim tự tháp thu nhỏ, kết hợp hài hòa giữa kiến trúc nhà mồ M'nông và chùa tháp Lào, trang trí biểu tượng búp sen ở bốn góc và đỉnh mộ; Lăng mộ của R'leo K'Nul: Nằm ngay bên cạnh, được xây dựng theo kiểu chóp nhọn tinh xảo của văn hóa Campuchia. Tương truyền ngôi mộ này do chính cựu hoàng Bảo Đại cho người thiết kế và hỗ trợ xây dựng nhằm cảm tạ công ơn biếu tặng voi trắng và gây dựng đội tượng binh hoàng gia.\n<b>Giá trị du lịch & Sinh thái</b>: Nằm trong tuyến tham quan di sản liên hoàn của Buôn Đôn (kết nối trực tiếp với Nhà sàn cổ Ama Kông, Cầu treo Buôn Đôn và Vườn Quốc gia Yok Đôn), khu lăng mộ được bao bọc bởi thảm thực vật rừng tự nhiên xanh mát quanh năm. Nơi đây mang lại trải nghiệm du lịch văn hóa – tâm linh sâu sắc, giúp du khách tìm hiểu nghệ thuật điêu khắc nhà mồ Tây Nguyên và chiêm ngưỡng không gian sinh thái rừng khộp đặc trưng.\n<b>Ý nghĩa văn hóa & Lịch sử truyền đời</b>: Khu lăng mộ không chỉ tôn vinh công lao của vị tù trưởng có công quy tụ các tộc người (M'nông, Ê-đê, Lào, Khmer...) để khai sinh nên vùng đất Bản Đôn trù phú, mà còn là biểu tượng cho sự giao thoa văn hóa xuyên biên giới giữa Tây Nguyên với các nước láng giềng Đông Dương. Đối với thế hệ mai sau, công trình truyền tải bài học về lòng tôn kính tiền nhân, tinh thần thượng võ và bản lĩnh chinh phục thiên nhiên của các bậc tiền bối.\n<b>Câu chuyện & Bảo tồn lịch sử</b>: Xung quanh khu lăng mộ lưu truyền nhiều giai thoại kỳ bí về luật tục khắt khe của nghĩa địa các Gru (dũng sĩ săn voi) – nơi chỉ những người có chiến công thu phục voi rừng mới được an táng tại trung tâm khu mộ. Trong công tác bảo tồn hiện nay, chính quyền địa phương, ngành văn hóa tỉnh Đắk Lắk cùng con cháu gia tộc Vua voi luôn chú trọng bảo vệ nguyên trạng kết cấu gạch cổ, giữ gìn hệ sinh thái cây cổ thụ bao quanh và duy trì các nghi lễ tâm linh truyền thống nhằm lưu giữ vẹn nguyên di sản cho đời sau.",
+ 
+  anh: ["images/vochongvuavoi-2.jpg",
+    "images/movuavoi-1.jpg",
+    "images/movuavoi-3.webp",
+    "images/movuavoi-3.jpg",
+    "images/movuavoi-5.jpg"
+  ],
+ 
+  video: "https://youtu.be/oUHUZ81XS20",
+ 
+  amThanh: "",
+ 
+  loiKe: "",
+ 
+  nguoiKe: "",
+ 
+  amThanhNguon: "",
+ 
+  nam: "Khu lăng mộ được hình thành vào khoảng năm 1938 – 1939",
+ 
+  nguon: "https://vtv8.vtv.vn/dau-xua-vua-san-voi-107260909205704011.htm, https://daklak.gov.vn/dia-danh-di-tich-thang-canh/-/asset_publisher/bDngMUmMrWIw/content/mo-vua-san-bat-voi-khunjunob-,https://vi.wikipedia.org/wiki/M%E1%BB%99_vua_voi, https://mia.vn/cam-nang-du-lich/mo-vua-voi-buon-ma-thuot-14100",
+ 
+  tomTat: "Khu lăng mộ Vua Voi Khun Yu Nốp tọa lạc tại Bản Đôn, xã Buôn Đôn, tỉnh Đắk Lắk."
+ 
+},
+ 
+  {
+ 
+    ten:"Trường PT DTNT THPT N'Trang Lơng",
+ 
+    toaDo:{lat:12.637173487609509,lng:107.98938385488421},
+ 
+    moTa:"<b>Trường Phổ thông Dân tộc Nội trú THPT N'Trang Lơng hay  là ngôi trường nội trú đầu tiên được thành lập tại khu vực Tây Nguyên sau ngày giải phóng. Trải qua hành trình 50 năm xây dựng và trưởng thành (1976 – 2026), nơi đây không chỉ là cơ sở giáo dục trọng điểm mà còn là “Mái nhà chung ươm mầm tri thức giữa đại ngàn” lưu giữ bản sắc văn hóa của hơn 30 dân tộc anh em trên cao nguyên</b>.\n\n<b>Tên gọi & Cảnh quan</b>: Trường vinh dự mang tên người anh hùng dân tộc kiệt xuất N'Trang Lơng (1870 – 1935) – vị thủ lĩnh người M'nông đã lãnh đạo đồng bào các dân tộc Tây Nguyên đứng lên khởi nghĩa chống thực dân Pháp suốt hơn 20 năm. Tiền thân của trường được thành lập vào ngày 12/01/1976 với tên gọi ban đầu là 'Trường vừa học vừa làm' trên cơ sở tiếp quản đồn điền cũ của Pháp. Sau các lần đổi tên vào tháng 8/1976 và tháng 4/1991, trường chính thức mang tên Trường Phổ thông Dân tộc Nội trú THPT N'Trang Lơng. Ngôi trường nằm trên khuôn viên rộng gần 50.000 m² xanh mát, tách biệt khỏi sự ồn ào phố thị qua một chiếc cầu nhỏ bắc ngang dòng suối hiền hòa.\n\<b>Đặc điểm cảnh quan & Kiến trúc không gian</b>: Nằm trên nền đất đỏ bazan bằng phẳng tại khu vực cửa ngõ phía Tây Nam Buôn Ma Thuột, khuôn viên trường được quy hoạch khoa học thành hai phân khu chức năng tách biệt. Khu vực phía trước gồm nhà hiệu bộ, hội trường và các dãy phòng học hiện đại đạt chuẩn Quốc gia; khu vực phía sau là hệ thống ký túc xá nội trú khang trang, nhà ăn tập thể và khu liên hợp giáo dục thể chất. Toàn bộ không gian quanh năm rợp bóng cây cổ thụ và muôn sắc hoa, tạo nên một môi trường sư phạm xanh – sạch – đẹp, gần gũi với thiên nhiên buôn làng.\n\<b>Giá trị giáo dục & Học đường</b>: Là trường chuyên biệt nuôi dạy con em đồng bào các dân tộc thiểu số thuộc vùng sâu, vùng xa của tỉnh Đắk Lắk, nhà trường luôn duy trì tỷ lệ đỗ tốt nghiệp THPT đạt 100% trong nhiều năm liền cùng hàng loạt giải thưởng học sinh giỏi cấp tỉnh và quốc gia. Nhờ cảnh quan sinh thái trong lành và bản sắc văn hóa độc đáo, nơi đây thường xuyên là điểm đến giao lưu văn hóa học đường, hướng nghiệp và tổ chức các ngày hội văn nghệ truyền thống quy mô toàn tỉnh.\n\<b>Ý nghĩa văn hóa & Lịch sử truyền đời</b>: Suốt nửa thế kỷ qua, từ mái trường này đã có hàng vạn học sinh người Ê-đê, M'nông, Gia Rai, Tày, Nùng... trưởng thành, trở thành đội ngũ cán bộ chủ chốt, bác sĩ, kỹ sư, nhà giáo quay về phục vụ quê hương. Đối với thế hệ mai sau, ngôi trường là minh chứng sống động cho chính sách đại đoàn kết dân tộc của Đảng và Nhà nước, truyền đi thông điệp về tinh thần hiếu học, ý chí vượt khó vươn lên làm chủ tri thức của con em đồng bào các dân tộc Tây Nguyên.\n\<b>Truyền thống & Thực hành bảo tồn văn hóa</b>: Điểm đặc sắc nhất trong đời sống học đường tại đây là việc biến môi trường nội trú thành không gian bảo tồn di sản sống. Nhà trường thường xuyên duy trì các câu lạc bộ đánh cồng chiêng, múa xoang, dệt thổ cẩm và tổ chức các hoạt động vui chơi ngay trong sân trường. Học sinh từ các buôn làng khác nhau cùng ăn, cùng ở, tôn trọng phong tục của nhau, từ đó tự giác giữ gìn tiếng nói, trang phục và lòng tự hào dân tộc giữa nhịp sống hiện đại",
+ 
+    anh:
+    ["images/ntl_1.jpg",
+    "images/ntl_2.jpg",
+    "images/ntl_3.jpg",
+    "images/ntl_4.jpg",
+    "images/ntl_5.jpg",
+    "images/ntl_6.jpg",
+    "images/ntl_7.jpg",
+    "images/ntl_8.jpg",
+    "images/ntl_9.jpg",
+    "images/ntl_10.jpg"],
+ 
+    video:"https://youtu.be/O1vxRboF8cQ",
+ 
+    amThanh:"", // Đường dẫn file âm thanh, ví dụ: "audio/loi-ke-nghe-nhan.mp3"
+ 
+    loiKe:"", // Bản chép lời đã được người kể xác nhận
+ 
+    nguoiKe:"", // Tên người kể nếu được phép công bố
+ 
+    amThanhNguon:"", // Nguồn, ngày/địa điểm ghi âm và quyền sử dụng
+ 
+    nam:"Thành lập ngày  12/01/1976",
+    nguon:"https://c3dtntntranglong.daklak.edu.vn/gioi, https://gddt.daklak.gov.vn/truong-pho-thong-dan-toc-noi-tru-thpt-ntrang-long-voi-50-nam-hanh-trinh-uom-mam-tri-thuc-giua-dai-ngan.html,https://www.baodaklak.vn/xa-hoi/202409/truong-thpt-dan-toc-noi-tru-ntrang-long-khai-giang-nam-hoc-moi-a2807ca/,https://tienphong.vn/truong-thpt-dan-toc-noi-tru-no-trang-long-40-nam-xay-dung-va-phat-trien-post841105.tpo.",
+ 
+    tomTat:"Số 694/26 đường Võ Văn Kiệt, phường Thành Nhất, tỉnh Đắk Lắk."
+ 
+  },
+ 
+  {
+ 
+    ten:"Nhà đày Buôn Ma Thuột",
+ 
+    toaDo:{lat:12.676621531970744,lng:108.04725411078282},
+ 
+    moTa: "<b>Di tích lịch sử Quốc gia đặc biệt Nhà đày Buôn Ma Thuột à một chứng tích lịch sử mang giá trị nhân văn sâu sắc. Nơi đây vừa phơi bày sự tàn bạo của chế độ thực dân, vừa là tượng đài bất diệt về ý chí kiên cường, bất khuất của các chiến sĩ cộng sản Việt Nam</b>.\n\n<b>Tên gọi & Lịch sử hình thành</b>: Ban đầu được thực dân Pháp xây dựng vào giai đoạn 1930 – 1931 với tên hành chính là Nhà đày Buôn Ma Thuột, nhằm biến nơi rừng thiêng nước độc này thành một “địa ngục trần gian” để đày ải và thủ tiêu ý chí những người tù chính trị nguy hiểm ở Trung Kỳ. Tuy nhiên, bằng bản lĩnh kiên trung, các chiến sĩ cách mạng đã biến nơi đây thành một “Trường học cách mạng đặc biệt” ngay trong lòng địch. Sau năm 1954, chính quyền Sài Gòn tiếp quản và đổi tên thành Trung tâm cải huấn rồi Trung tâm giáo huấn. Với những giá trị lịch sử đặc biệt to lớn, ngày 24/12/2018, Thủ tướng Chính phủ đã ban hành quyết định xếp hạng nơi đây là Di tích lịch sử Quốc gia đặc biệt.\n\<b>Đặc điểm cảnh quan & Địa chất</b>: Tọa lạc trên nền đất đỏ bazan bằng phẳng ngay trung tâm cao nguyên Buôn Ma Thuột, nhà đày có tổng diện tích gần 2 hecta, được thiết kế khép kín theo hình vuông tựa như một pháo đài quân sự kiên cố. Bao bọc xung quanh là hệ thống tường rào xây bằng gạch và đá hộc dày 0,4 mét, cao tới 4 mét, phía trên chăng dây thép gai dày đặc và bố trí 4 chòi canh gác nghiêm ngặt ở bốn góc. Bên trong chia làm nhiều phân khu chức năng hà khắc: 6 dãy nhà lao tập thể chật hẹp với các bục gỗ dài gắn cùm sắt khóa chân tù nhân; khu xà lim biệt giam tối tăm, ngột ngạt dành cho những người bị coi là cầm đầu; cùng các khu phụ trợ như nhà bếp, bệnh xá, nhà làm việc của quản ngục và sân phơi .\n\<b>Giá trị du lịch & Sinh thái</b>: Nằm ngay giữa trung tâm thành phố sôi động với khuôn viên rợp bóng cây cổ thụ xanh mát, tạo nên sự tương phản sâu sắc giữa không gian thanh bình bên ngoài và sự khắc nghiệt bên trong các phòng giam xưa. Ngày nay, Nhà đày Buôn Ma Thuột là một “địa chỉ đỏ” hàng đầu thu hút đông đảo du khách trong nước, quốc tế và các thế hệ học sinh, sinh viên đến tham quan. Tại đây, du khách được tận mắt chứng kiến những hiện vật gốc, hệ thống tượng sáp tái hiện chân thực cảnh sinh hoạt, tra tấn và tinh thần học tập lý luận chính trị trong tù, giúp lịch sử trở nên sống động và chạm đến cảm xúc người xem.\n\<b>Ý nghĩa văn hóa & Lịch sử truyền đời</b>: Đây là nơi từng giam giữ nhiều nhà lãnh đạo tiền bối xuất sắc của Đảng và Nhà nước ta như Hồ Tùng Mậu, Phan Đăng Lưu, Nguyễn Chí Thanh, Võ Chí Công, Tố Hữu, Chu Huy Mân... Đặc biệt, vượt qua sự kìm kẹp gắt gao, vào cuối năm 1940, Chi bộ Đảng Cộng sản đầu tiên của tỉnh Đắk Lắk đã bí mật ra đời ngay tại nhà lao này, tạo ra bước ngoặt vĩ đại cho phong trào cách mạng tại Tây Nguyên. Đối với thế hệ mai sau, di tích là bài học vô giá về lòng yêu nước nồng nàn, sự hy sinh cao cả và sức mạnh của tri thức, lý tưởng cách mạng có thể chiến thắng mọi gông cùm, xiềng xích.\n\<b>Câu chuyện lịch sử & Bảo tồn</b>: Lịch sử nhà đày lưu truyền nhiều câu chuyện cảm động về tình đồng chí keo sơn và nghệ thuật đấu tranh kiên cường của các chiến sĩ. Tiêu biểu là cuộc tuyệt thực 13 ngày đêm vào năm 1933 để phản đối chế độ lao tù hà khắc, đòi quyền sống và quyền được đọc sách báo, hay câu chuyện những người tù cộng sản đã khéo léo cảm hóa chính những người lính gác bản địa (lính khố xanh người Ê-đê), biến họ thành cầu nối đưa tin và vận động đồng bào các buôn làng đi theo cách mạng. Để thực hành bảo tồn bền vững, tỉnh Đắk Lắk và Bảo tàng tỉnh luôn chú trọng công tác trùng tu nguyên trạng các dãy nhà lao, số hóa tư liệu hiện vật và thường xuyên tổ chức các buổi lễ dâng hương, kết nạp Đoàn – Đảng ngay tại sân di tích nhằm truyền lửa truyền thống cho thế hệ trẻ . ",
+ 
+    // TỰ THÊM ẢNH: điền tên tệp vào mảng, ví dụ anh:["yangprong_1.jpg"]
+ 
+    anh:
+    ["images/nhaday_1.webp",
+    "images/nhaday_2.webp",
+    "images/nhaday_3.jpg",
+    "images/nhaday_4.jpg",
+    "images/nhaday_5.jpg",
+    "images/nhaday_6.jpg",
+    "images/nhaday_7.jpg",
+    "images/nhaday_8.jpg",
+    "images/nhaday_9.jpg",
+    "images/Nhaday_10.jpg"],
+ 
+     
+    video:"https://youtu.be/d3WxsrbdxfE?si=vtp9bCsACSVZofWs",
+ 
+    amThanh:"", // Đường dẫn file âm thanh, ví dụ: "audio/loi-ke-nghe-nhan.mp3"
+ 
+    loiKe:"", // Bản chép lời đã được người kể xác nhận
+ 
+    nguoiKe:"", // Tên người kể nếu được phép công bố
+ 
+    amThanhNguon:"", // Nguồn, ngày/địa điểm ghi âm và quyền sử dụng
+ 
+    nam:"Được xây dựng trong những năm 1930–1931",
+    nguon:"https://daklak.gov.vn/dia-danh-di-tich-thang-canh/-/asset_publisher/bDngMUmMrWIw/content/nha-ay-buon-ma-thuot, https://baodaklak.vn/,https://vietnamtourism.gov.vn/post/50990,http://dulichdaklak.gov.vn/di-tich-lich-su-quoc-gia-dac-biet-nha-day-buon-ma-thuot-5996.html,https://www.daklakmuseum.vn/tin-tuc-su-kien/bai-viet/di-tich-lich-su-quoc-gia-dac-biet-nha-day-buon-ma-thuot--dia-chi-do-thu-hut-khach-du-lich",
+ 
+    tomTat:"Số 18 đường Tán Thuật, phường Buôn Ma Thuột, tỉnh Đắk Lắk"
+ 
+ 
+  },
+ 
+  {
+ 
+    ten:"Đình Lạc Giao",
+ 
+    toaDo:{lat:12.68306,lng:108.04056},
+ 
+    moTa:"Di tích lịch sử Quốc gia Đình Lạc Giao là ngôi đình đầu tiên của người Việt trên vùng đất Tây Nguyên, mang đậm dấu ấn văn hóa truyền thống và tinh thần đoàn kết Kinh – Thượng.\n\n<b>Tên gọi & Lịch sử hình thành</b>: Tên gọi “Lạc Giao” mang ý nghĩa thiêng liêng là “lời giao ước an cư lập nghiệp” và mối giao hảo thủy chung giữa những người Kinh tiên phong lên khai khẩn vùng đất mới với đồng bào các dân tộc bản địa tại chỗ. Làng Lạc Giao hình thành từ năm 1924 do cụ Phan Hộ (người Quảng Nam vào lập nghiệp tại Khánh Hòa) cùng các gia đình từ miền xuôi lên Buôn Ma Thuột khai hoang. Theo tập quán “dân đi đến đâu, lập đình ở đó”, ngôi đình được khởi dựng bằng tranh tre nứa lá vào năm 1928, sau đó được xây dựng lại kiên cố bằng gạch, lợp ngói đỏ vào năm 1932 và được vua Bảo Đại ban sắc phong Khai quốc công thần Đào Duy Từ làm Thần hoàng bản thổ. Ngày 02/03/1990, Bộ Văn hóa - Thông tin chính thức xếp hạng nơi đây là Di tích lịch sử cấp Quốc gia.\n\<b>Đặc điểm cảnh quan & Địa chất</b>: Tọa lạc trên vùng đất đỏ bazan bằng phẳng ngay khu vực trung tâm sầm uất gần chợ Buôn Ma Thuột, ngôi đình có diện tích xây dựng khoảng 100 m² nằm trong khuôn viên rộng gần 700 m². Công trình mang lối kiến trúc đình làng truyền thống Việt Nam với mặt bằng hình chữ Môn (門), hai cửa chính mở ra hai trục đường lớn là Phan Bội Châu và Điện Biên Phủ. Mái đình lợp ngói vảy cổ kính, trên nóc trang trí hình tượng lưỡng long chầu nguyệt, tứ linh, tứ quý tinh xảo cùng bức bình phong chạm khắc hổ phù uy nghiêm trước sân. Bên trong chia làm gian chính điện thờ Thành hoàng Đào Duy Từ, hai bên là Tả ban, Hữu ban và nhà Tây lang thờ vị tiền hiền Phan Hộ, Vua Hùng cùng các anh hùng liệt sĩ.\n\<b>Giá trị du lịch & Sinh thái</b>: Nằm giữa nhịp sống đô thị nhộn nhịp nhưng khuôn viên Đình Lạc Giao vẫn giữ được không gian trầm mặc, thanh tịnh dưới tán cây đa cổ thụ rợp bóng mát quanh năm. Ngày nay, công trình trở thành một “địa chỉ đỏ” giáo dục truyền thống và là điểm hẹn du lịch văn hóa đặc sắc ngay giữa lòng phố núi. Du khách ghé thăm có dịp tìm hiểu kiến trúc đình làng cổ giữa lòng Tây Nguyên, chiêm ngưỡng các hiện vật thờ tự quý giá và hòa mình vào không khí lễ hội dân gian truyền thống như Lễ Tế Xuân (17 tháng Giêng), Giỗ Tổ Hùng Vương (10/3 Âm lịch) hay Lễ Tế Thu (17/8 Âm lịch).\n\<b>Ý nghĩa văn hóa & Lịch sử truyền đời</b>: Đình Lạc Giao là biểu tượng sống động của khối đại đoàn kết dân tộc. Giữa bối cảnh thực dân Pháp thi hành chính sách chia rẽ người Kinh và người Thượng bằng chiêu bài “Đất Thượng của người Thượng”, sự ra đời và tồn tại của ngôi đình đã chứng minh sức mạnh gắn bó keo sơn, cùng chung lưng đấu cật xây dựng quê hương của các dân tộc anh em. Bên cạnh đó, đình còn ghi dấu nhiều sự kiện lịch sử trọng đại của tỉnh Đắk Lắk: là nơi chứng kiến khí thế sục sôi của cuộc khởi nghĩa giành chính quyền trong Cách mạng Tháng Tám năm 1945 và là nơi Ủy ban Quân quản thị xã Buôn Ma Thuột tổ chức lễ ra mắt nhân dân sau ngày giải phóng (tháng 3/1975).\n\<b>Câu chuyện lịch sử & Bảo tồn</b>: Hằng năm vào ngày 27/10 Âm lịch, nhân dân Buôn Ma Thuột lại tụ hội về đình để tổ chức lễ tưởng niệm trang trọng tri ân các chiến sĩ trận vong và đồng bào tử nạn trong sự kiện đêm 01/12/1945 (khi quân Pháp đánh chiếm lại Buôn Ma Thuột và tàn sát nhiều người dân vô tội trú ẩn tại khu vực đình). Để thực hành bảo tồn bền vững, ngành văn hóa tỉnh Đắk Lắk đã nhiều lần trùng tu, tôn tạo công trình (tiêu biểu vào năm 2005) nhưng vẫn giữ trọn nét kiến trúc xưa, đồng thời duy trì các nghi lễ tế tự cổ truyền để truyền lại đạo lý “Uống nước nhớ nguồn” cho thế hệ mai sau ",
+ 
+    // TỰ THÊM ẢNH: điền tên tệp vào mảng, ví dụ anh:["yangprong_1.jpg"]
+ 
+    anh:
+    ["images/dinhlacgiao_!.jpg",
+    "images/dinhlacgiao_2.jpg",
+    "images/dinhlacgiao_3.jpg",
+    "images/dinhlacgiao_4.jpg",
+    "images/dinhlacgiao_5.jpg",
+    "images/dinhlacgiao_6.jpeg",
+    "images/dinhlacgiao_7.jpg"],
+ 
+    // TỰ THÊM VIDEO: điền tên tệp, ví dụ video:"video_yangprong.mp4"
+ 
+    video:"https://youtu.be/gbbTc4CVltM?si=SyofPHBdAN6uS5fA",
+ 
+    amThanh:"", // Đường dẫn file âm thanh, ví dụ: "audio/loi-ke-nghe-nhan.mp3"
+ 
+    loiKe:"", // Bản chép lời đã được người kể xác nhận
+ 
+    nguoiKe:"", // Tên người kể nếu được phép công bố
+ 
+    amThanhNguon:"", // Nguồn, ngày/địa điểm ghi âm và quyền sử dụng
+ 
+    nam:"Xây dựng năm 1928; xếp hạng di tích cấp Quốc gia năm 1990",
+    nguon:"https://daklakmuseum.vn/tin-tuc-su-kien/bai-viet/di-tich-lich-su-dinh-lac-giao,https://laodong.vn/van-hoa-giai-tri/dinh-lac-giao--dau-an-doan-ket-o-dai-ngan-dak-lak-1657029.ldo,https://vov.vn/van-hoa/dinh-lac-giao-dia-chi-do-ghi-dau-an-cua-nguoi-kinh-o-buon-ma-thuot-dak-lak-post1089680.vov,https://vi.wikipedia.org/wiki/%C4%90%C3%ACnh_L%E1%BA%A1c_Giao,https://dantocphattrien.vietnamnet.vn/ngoi-dinh-mang-ten-loi-giao-uoc-tren-dat-tay-nguyen-66250.html",
+ 
+    tomTat:"Số 67 đường Phan Bội Châu, phường Buôn Ma Thuột, tỉnh Đắk Lắk"
+ 
+ 
+  },
+ 
+  {
+ 
+    ten:"Tháp Chăm Yang Prông",
+ 
+    toaDo:{lat:13.209927643913712,lng:107.83159441349244},
+ 
+    moTa:"<b>Di tích Kiến trúc Nghệ thuật Quốc gia Tháp Yang Prông là ngôi tháp Chăm cổ duy nhất được tìm thấy tại vùng đất Tây Nguyên cho đến nay</b>.\n\n<b>Tên gọi & Lịch sử hình thành:</b> Trong ngôn ngữ bản địa của người Gia Rai và Ê-đê tại chỗ, “Yang Prông” mang ý nghĩa là “Thần Lớn” hoặc “Thần Vĩ Đại”; ngoài ra nơi đây còn được gọi bằng cái tên giàu chất thơ là “Tháp Chàm Rừng Xanh”. Ngôi tháp được xây dựng vào cuối thế kỷ XIII dưới triều đại vua Chăm Pa Jaya Simhavarman III (tức vua Chế Mân) nhằm thờ vị thần tối cao Shiva dưới dạng Mukhalinga. Công trình được trung úy Lào tên Oum và các nhà thám hiểm Pháp (Henri Maitre, Odend'hal) phát hiện, khảo tả vào đầu thế kỷ XX (giai đoạn 1900 – 1906). Đến ngày 03/08/1991, Bộ Văn hóa - Thông tin chính thức ban hành Quyết định số 1371/QĐ xếp hạng Tháp Yang Prông là Di tích Kiến trúc Nghệ thuật cấp Quốc gia.\n<b> Đặc điểm cảnh quan & Địa chất:</b> Khác với các đền tháp Chăm tại duyên hải miền Trung thường ngự trị trên đồi cao hướng ra biển, Tháp Yang Prông tọa lạc trên vùng địa hình bán bình nguyên bằng phẳng, ẩn mình lặng lẽ dưới tán rừng thưa nguyên sinh bên bờ dòng sông Ea H'leo. Công trình được xây dựng trên một nền đá xanh vững chãi, kết cấu bằng loại gạch nung đỏ đặc trưng của kỹ thuật xây tháp Chăm cổ không để lộ mạch vữa. Tháp có chiều cao khoảng 9 – 10 mét, mặt bằng bình đồ hình vuông mỗi cạnh dài 5 mét, phía trên mở rộng và thon vút tựa như hình búp hoa hoặc ngọn tháp bút. Tháp chỉ có một cửa chính duy nhất mở về hướng Đông đón ánh mặt trời, ba mặt tường còn lại đắp hệ thống cửa giả trang trí cân xứng.\n<b>Giá trị du lịch & Sinh thái:</b> Nằm lọt thỏm giữa vùng rừng khộp và rừng thường xanh quanh năm thuộc huyện biên giới Ea Súp, di tích mang vẻ đẹp trầm mặc, huyền bí và tĩnh lặng tách biệt khỏi phố thị. Địa điểm này là điểm nhấn không thể thiếu trong hành trình du lịch khám phá vùng biên viễn Tây Nguyên (kết nối với Vườn Quốc gia Yok Đôn và cụm thác vùng Ea Súp), mang đến trải nghiệm tìm hiểu khảo cổ học, chiêm ngưỡng nghệ thuật điêu khắc cổ giữa thiên nhiên hoang sơ.\n<b>Ý nghĩa văn hóa & Lịch sử truyền đời:</b> Sự hiện diện của Tháp Yang Prông là bằng chứng vật chất vô giá khẳng định quá trình giao lưu kinh tế, bang giao và cộng cư lâu đời giữa vương quốc Chăm Pa cổ với các tộc người bản địa Tây Nguyên từ gần một nghìn năm trước. Đối với thế hệ mai sau, ngôi cổ tháp truyền tải thông điệp về tinh thần hòa hợp văn hóa đa tộc người, sự trân trọng di sản kiến trúc độc bản và khát vọng cầu mong mưa thuận gió hòa, mùa màng sinh sôi nảy nở của cư dân cao nguyên.\n<b>Câu chuyện lịch sử & Bảo tồn:</b> Theo tư liệu lịch sử và truyền thuyết địa phương, việc vua Chế Mân cho dựng ngôi tháp ở vùng thượng nguồn này vừa nhằm củng cố quyền uy, vừa là điểm tựa tâm linh che chở cho cộng đồng người Chăm di cư lên vùng cao nguyên sinh sống và giao thương sản vật rừng. Trải qua hàng trăm năm biến thiên và từng chịu hư hại nặng nề do bom mìn trong chiến tranh, ngôi tháp vẫn đứng vững đầy kiêu hãnh. Để thực hành bảo tồn bền vững, tỉnh Đắk Lắk đã đầu tư nguồn kinh phí hàng chục tỷ đồng để gia cố kết cấu gạch cổ, quy hoạch tường rào bảo vệ, tôn tạo cảnh quan khuôn viên và duy trì các nghi lễ văn hóa truyền thống tại khu di tích.",
+ 
+    // TỰ THÊM ẢNH: điền tên tệp vào mảng, ví dụ anh:["yangprong_1.jpg"]
+ 
+    anh:
+    ["images/thapyangprong-1.jpeg",
+     "images/thapyangprong-2.jpeg",
+     "images/thapyangprong-3.jpeg"],
+ 
+    video:"https://youtu.be/6Jt3nHrPeKo?si=7NTL8UNHv1unRk9g",
+ 
+    amThanh:"", // Đường dẫn file âm thanh, ví dụ: "audio/loi-ke-nghe-nhan.mp3"
+ 
+    loiKe:"", // Bản chép lời đã được người kể xác nhận
+ 
+    nguoiKe:"", // Tên người kể nếu được phép công bố
+ 
+    amThanhNguon:"", // Nguồn, ngày/địa điểm ghi âm và quyền sử dụng
+ 
+    nam:"Ngôi tháp được xây dựng vào cuối thế kỷ XIII ",
+    nguon: "https://daklakmuseum.vn/tin-tuc-su-kien/bai-viet/thap-yang-prong, http://dulichdaklak.gov.vn/di-tich-kien-truc-quoc-gia-thap-yang-prong-6010.html, https://baogialai.com.vn/di-tich-dau-tien-va-duy-nhat-nao-o-tay-nguyen-duoc-xep-hang-di-tich-kien-truc-quoc-gia-post18860.html,https://vi.wikipedia.org/wiki/Th%C3%A1p_Yang_Prong",
+ 
+    tomTat:"Tọa lạc tại thôn 5, xã Ea Rốk, tỉnh Đắk Lắk (cách trung tâm Buôn Ma Thuột khoảng 100 km về hướng Tây Bắc)."
+ 
+  },
+ 
+  {
+ 
+    ten:"Hang đá Buôn Đăk Tuar",
+ 
+    toaDo:{lat:12.48892229928078,lng:108.46876862883586},
+ 
+    moTa:"<b>Di tích lịch sử Quốc gia Hang đá buôn Dăck Tuar là một kiệt tác thiên nhiên hiểm trở dưới chân dãy núi Chư Yang Sin, từng là 'trái tim' của căn cứ địa cách mạng tỉnh Đắk Lắk trong kháng chiến chống Mỹ</b>.\n\n<b>Tên gọi & Lịch sử hình thành:</b> Ngoài tên hành chính, đồng bào bản địa còn gọi hang bằng cái tên cổ là Gộp Chăng, đồng thời giới sử học ca ngợi nơi đây là “Pháo đài đá bất khả xâm phạm của căn cứ H9” hay “Trái tim của căn cứ địa cách mạng Đắk Lắk”. Hang được kiến tạo tự nhiên từ hàng triệu năm trước cùng sự hình thành của dãy Chư Yang Sin. Trong giai đoạn 1965 – 1975, địa điểm này được Tỉnh ủy Đắk Lắk và quân dân huyện Krông Bông (mật danh H9) chọn làm căn cứ đứng chân bí mật, nơi in ấn tài liệu, cất giấu vũ khí và chỉ đạo phong trào đấu tranh toàn tỉnh. Ngày 03/08/1991, Bộ Văn hóa - Thông tin chính thức ban hành Quyết định số 1371/QĐ xếp hạng Hang đá buôn Dăck Tuar là Di tích lịch sử cấp Quốc gia.\n\<b>Đặc điểm cảnh quan & Địa chất:</b> Nằm trong vùng khoanh vùng bảo vệ rộng 5,6 ha và cách trung tâm xã Cư Pui khoảng 6 km đường rừng núi về phía thượng nguồn, hang động được cấu tạo từ hàng trăm tảng đá granit và đá núi hình khối lồi lõm, không đều nhau xếp chồng tự nhiên thành nhiều tầng lớp. Bên ngoài hang bị che khuất bởi tán rừng già rậm rạp và địa hình dốc đứng hiểm trở, nhưng bên trong lại mở ra một không gian rộng lớn, thông nhau qua nhiều ngóc ngách kín đáo có sức chứa hàng trăm người cùng kho tàng quân nhu, biến nơi đây thành một lô cốt tự nhiên vững chãi trước bom đạn.\n\<b>Giá trị du lịch & Sinh thái:</b> Nằm ngay cạnh dòng thác và con suối Đắk Tuôr trong vắt quanh năm thuộc vùng lõi dãy Chư Yang Sin, di tích giữ trọn vẹn vẻ đẹp hoang sơ, trầm mặc với hệ sinh thái rừng nhiệt đới xanh mát. Nhờ tuyến đường giao thông dẫn vào khu di tích đã được đầu tư nâng cấp khang trang, nơi đây trở thành điểm đến hấp dẫn cho loại hình du lịch 'về nguồn' kết hợp trekking xuyên rừng, khám phá địa chất hang động và thưởng ngoạn vẻ đẹp thơ mộng của dòng thác Đắk Tuôr liền kề.\n\<b>Ý nghĩa văn hóa & Lịch sử truyền đời:</b> Trong suốt một thập kỷ kháng chiến ác liệt, hang đá không chỉ là trung tâm chỉ đạo cách mạng của toàn tỉnh Đắk Lắk mà còn là mắt xích quan trọng trên đường dây chuyển giao thông tin, tiếp tế chiến lược từ hậu phương lớn miền Bắc vào chiến trường miền Trung và Nam Bộ. Mặc cho quân đội Mỹ nhiều lần ném bom dữ dội và tổ chức càn quét, căn cứ vẫn đứng vững, góp phần quyết định đập tan chiến lược'Chiến tranh đặc biệt' của địch. Đối với thế hệ mai sau, di tích là tượng đài bất diệt giáo dục lòng yêu nước, tinh thần tự lực tự cường và tình đoàn kết keo sơn giữa cán bộ cách mạng với đồng bào M'nông, Ê-đê tại chỗ.\n\<b>Câu chuyện lịch sử & Bảo tồn:</b> Ngoài ký ức hào hùng gắn liền với tấm gương hy sinh anh dũng của các chiến sĩ kiên trung như liệt sĩ Y Ơn, vùng đất Đắk Tuôr còn lưu truyền truyền thuyết tình yêu lãng mạn của đại ngàn. Chuyện kể rằng ngày xưa con gái của Yàng (Trời) dạo chơi qua dòng suối Đắk Tuôr, đem lòng yêu mến một chàng trai bản địa đang tắm suối nên đã hóa thành thiếu nữ xinh đẹp xuống trần gian kết duyên, tạo nên nguồn nước trong lành và cảnh sắc thơ mộng nơi đây. Để thực hành bảo tồn bền vững, tỉnh Đắk Lắk và Bảo tàng tỉnh đã thực hiện cắm mốc khoanh vùng bảo vệ nguyên trạng 5,6 ha di tích, tu bổ hệ thống bia dẫn tích, làm đường tiếp cận và thường xuyên tổ chức các chuyến hành hương về nguồn cho thanh niên địa phương   ",
+ 
+    anh:["images/Hang đá Đăk Tuar-1.jpeg",
+      "images/Hang đá Đăk Tuar-2.jpeg",
+      "images/Hang đá Đăk Tuar-3.jpeg",
+      "images/Hang đá Đăk Tuar-4.jpeg",
+      "images/Hang đá Đăk Tuar-5.jpg",
+      "images/Hang đá Đăk Tuar-6.jpg",
+      "images/Hang đá Đăk Tuar-7.jpg",
+      "images/Hang đá Đăk Tuar-8.jpg",
+    ],
+ 
+    video:"https://youtu.be/dv-eKj_31MY?si=nPeaThXFmmw61Ko7",
+ 
+    amThanh:"", // Đường dẫn file âm thanh, ví dụ: "audio/loi-ke-nghe-nhan.mp3"
+ 
+    loiKe:"", // Bản chép lời đã được người kể xác nhận
+ 
+    nguoiKe:"", // Tên người kể nếu được phép công bố
+ 
+    amThanhNguon:"", // Nguồn, ngày/địa điểm ghi âm và quyền sử dụng
+ 
+    nam:"Ngày 03/08/1991, Bộ Văn hóa - Thông tin chính thức ban hành Quyết định số 1371/QĐ xếp hạng Hang đá buôn Dăck Tuar là Di tích lịch sử cấp Quốc gia",
+    nguon: "https://daklakmuseum.vn/tin-tuc-su-kien/bai-viet/di-tich-lich-su-quoc-gia-hang-da-buon-dack-tuar-dak-tuor,https://www.baodaklak.vn/du-lich/202207/ve-dak-tuor-nghe-truyen-thuyet-tinh-yeu-a544750/,https://vi.wikipedia.org/wiki/Hang_%C4%91%C3%A1_%C4%90%C4%83k_Tuar,http://dulichdaklak.gov.vn/di-tich-lich-su-quoc-gia-hang-da-buon-dak-tuar-6007.html.",
+ 
+    tomTat:"Địa điểm Buôn Đăk Tuar, xã Cư Pui, tỉnh Đắk Lắk(cách trung tâm Buôn Ma Thuột khoảng 60 – 80 km về phía Đông Nam) ."
+ 
+  },
+ 
+  {
+ 
+    ten:"Miếu thờ tại đồn điền CADA",
+ 
+    toaDo:{lat:12.7091826556045,lng:108.26737059999999},
+ 
+    moTa:"<b>Di tích lịch sử Quốc gia Địa điểm Miếu thờ tại Đồn điền CADA  là một chứng tích lịch sử cách mạng vô cùng đặc biệt, gắn liền với sự ra đời và phong trào đấu tranh kiên cường của giai cấp công nhân đầu tiên trên cao nguyên Đắk Lắk.</b>.\n\n<b>Tên gọi & Lịch sử hình thành:</b> Tên gọi “Miếu thờ CADA” do chính những người công nhân và chiến sĩ hoạt động cách mạng tại đồn điền đặt ra. Trong đó, CADA là tên viết tắt của cụm từ tiếng Pháp Compagnie Agricole d'Asie (Công ty Nông nghiệp Á Châu) – một trong những đồn điền cà phê quy mô lớn đầu tiên do thực dân Pháp lập ra tại Đắk Lắk vào năm 1922. Ngôi miếu được hình thành từ cuộc đấu tranh của công nhân đồn điền đòi chủ Pháp cho phép xây dựng nơi sinh hoạt tín ngưỡng, ban đầu chỉ dựng tạm bằng mái tranh, vách đất nên nhanh chóng xuống cấp. Đến năm 1940, công nhân tiếp tục đấu tranh buộc giới chủ phải xây dựng lại ngôi miếu kiên cố bằng gạch. Ngày 17/09/2012, Bộ Văn hóa, Thể thao và Du lịch chính thức xếp hạng nơi đây là Di tích lịch sử cấp Quốc gia.\n<b>Đặc điểm cảnh quan & Địa chất:</b> Tọa lạc trên vùng đất đỏ bazan màu mỡ thuộc khu vực Km27 dọc Quốc lộ 26 (cách trụ sở chính của Đồn điền CADA khoảng 500 mét về hướng Đông Nam), ngôi miếu nằm ẩn mình lặng lẽ giữa bạt ngàn vườn cà phê xanh mướt. Về mặt kiến trúc, công trình được xây dựng trên nền móng bằng đá ong vững chắc với diện tích khiêm tốn khoảng 22,75 m² (dài 6,5m x rộng 3,5m), tường xây gạch táp lô kiên cố. Mái miếu lợp ngói vảy cổ kính, trên đỉnh nóc đắp nổi hình tượng hai con kìm chầu và bốn góc mái uốn cong hình đầu đao mềm mại theo đúng lối kiến trúc đình miếu truyền thống của người Việt.\n<b>Giá trị du lịch & Sinh thái:</b> Nằm trong quần thể liên hoàn với Di tích Quốc gia Đồn điền CADA (cách trung tâm Buôn Ma Thuột khoảng 27 km về hướng Đông), khuôn viên miếu rợp bóng cây xanh cổ thụ, mang lại không gian thanh tịnh và hoài cổ. Ngày nay, nơi đây là một “địa chỉ đỏ” giáo dục truyền thống tiêu biểu của huyện Krông Pắc, thu hút đông đảo du khách, các đoàn cựu chiến binh và học sinh đến dâng hương, tham quan tìm hiểu lịch sử hình thành vùng chuyên canh cà phê lâu đời nhất Tây Nguyên.\n<b>Ý nghĩa văn hóa & Lịch sử truyền đời:</b> Dưới vỏ bọc là một cơ sở sinh hoạt tín ngưỡng tâm linh, Miếu thờ CADA thực chất là “trái tim bí mật” của phong trào cách mạng tại đồn điền. Đây là nơi diễn ra các cuộc họp bí mật của Chi bộ Đảng đồn điền CADA (chi bộ cơ sở được phát triển từ năm 1944 – 1945), nơi đặt hộp thư mật liên lạc, cất giấu tài liệu và tiếp tế lương thực cho bộ đội trong suốt hai cuộc kháng chiến chống Pháp và chống Mỹ. Từ năm 1946 đến 1969, ngôi miếu nhỏ bé này còn là nơi tổ chức lễ kết nạp cho nhiều thế hệ đảng viên, đoàn viên ưu tú, góp phần làm nên cuộc khởi nghĩa giành chính quyền thắng lợi đầu tiên ở cấp cơ sở tại Đắk Lắk vào tháng 8/1945.\n<b>Câu chuyện lịch sử & Bảo tồn:</b> Lịch sử ngôi miếu gắn liền với sự hồi sinh kỳ diệu từ đống tro tàn chiến tranh. Vào năm 1972, khi phát hiện đây là cơ sở nuôi giấu và liên lạc của cách mạng, quân đội Mỹ – Ngụy đã dùng bom đạn đánh sập hoàn toàn ngôi miếu, chỉ còn trơ lại nền móng và gốc cây cổ thụ xù xì. Sau ngày đất nước thống nhất, với lòng biết ơn sâu sắc đối với tiền nhân, chính quyền và nhân dân địa phương đã chung tay phục dựng lại ngôi miếu khang trang ngay trên nền đất cũ theo đúng nguyên mẫu kiến trúc năm 1940, đồng thời khoanh vùng bảo vệ và đưa vào khai thác phục vụ giáo dục di sản bền vững cho thế hệ mai sau.",
+  
+    anh:["images/mieuthoCADA-4.webp",
+"images/mieuthoCADA-1.jpg",
+"images/mieuthoCADA-2.jpg",
+"images/mieuthoCADA-3.jpg",
+"images/mieuthoCADA-5.webp",
+"images/mieuthoCADA-6.jpg",
+"images/mieuthoCADA-7.jpg",
+
+],
+ 
+ 
+    video:"https://youtu.be/i1Y0QA4fuIc?si=w0hczUCHgT1FMxxg",
+ 
+    amThanh:"", // Đường dẫn file âm thanh, ví dụ: "audio/loi-ke-nghe-nhan.mp3"
+ 
+    loiKe:"", // Bản chép lời đã được người kể xác nhận
+ 
+    nguoiKe:"", // Tên người kể nếu được phép công bố
+ 
+    amThanhNguon:"", // Nguồn, ngày/địa điểm ghi âm và quyền sử dụng
+ 
+    nam:"Giai đoạn sau năm 1922 (Dựng tạm ban đầu) iếu thờ tại Đồn điền CADA được xây dựng kiên cố bằng gạch vào năm 1940",
+    nguon: "https://daklakmuseum.vn/tin-tuc-su-kien/bai-viet/mieu-tho-cada, https://en.baodanang.vn/dia-chi-do-tren-cao-nguyen-3284571.html,https://baodaklak.vn/chinh-tri/202209/cada-tu-don-dien-cua-thuc-dan-den-dia-chi-do-cach-mang-f754b60/,https://daklak.gov.vn/lanh-ao-ubnd-tinh/-/asset_publisher/bDngMUmMrWIw/content/di-tich-on-ien-cada-huyen-krong-pac-chinh-thuc-i-vao-hoat-ong-phuc-vu-le-hoi-.",
+ 
+    tomTat:"Km 46 Quốc lộ 26, xã Ea Phê, tỉnh Đắk Lắk."
+ 
+  }
+ 
+];
+ 
+const nhomDiSan = {
+ 
+  history: [
+ 
+    "Nhà đày Buôn Ma Thuột",
+ 
+    "Hang đá Buôn Đăk Tuar",
+ 
+    "Hang đá Khuê Ngọc Điền",
+ 
+    "Di tích Chiến thắng đèo M'Drắk – Phượng Hoàng 1975",
+ 
+    "Đình Lạc Giao",
+ 
+    "Miếu thờ tại đồn điền CADA",
+ 
+    "Biệt điện Bảo Đại",
+ 
+    "Khu lăng mộ Vua Voi Khun Yu Nốp"
+ 
+  ],
+ 
+  architecture: [
+ 
+    "Tháp Chăm Yang Prông",
+ 
+    "Đình Lạc Giao",
+ 
+    "Biệt điện Bảo Đại",
+ 
+    "Nhà sàn cổ Ama Kông",
+ 
+    "Hồ Lắk và Biệt điện Bảo Đại Hồ Lắk",
+ 
+    "Miếu thờ tại đồn điền CADA"
+ 
+  ],
+ 
+  archaeology: [
+ 
+    // Chưa có hồ sơ khảo cổ được xác minh
+ 
+  ],
+ 
+  cultural: [
+ 
+    "Trường PT DTNT THPT N'Trang Lơng",
+ 
+    "Đình Lạc Giao",
+ 
+    "Tháp Chăm Yang Prông",
+ 
+    "Miếu thờ tại đồn điền CADA",
+ 
+    "Nhà sàn cổ Ama Kông",
+ 
+    "Khu lăng mộ Vua Voi Khun Yu Nốp",
+ 
+    "Hồ Lắk và Biệt điện Bảo Đại Hồ Lắk",
+ 
+    "Biệt điện Bảo Đại"
+ 
+  ],
+ 
+  landscape: [
+ 
+    "Hồ Ea Kao",
+ 
+    "Đồi Cư H'lăm",
+ 
+    "Thác Drai Dlông (Thác Cao)",
+ 
+    "Thác Drai Dăng",
+ 
+    "Thác Thủy Tiên",
+ 
+    "Thác Bay",
+ 
+    "Thác Drai H'Jie",
+ 
+    "Hồ Lắk và Biệt điện Bảo Đại Hồ Lắk",
+ 
+    "Thác Dray Sáp Thượng (Thác Gia Long)",
+ 
+    "Thác Drai Nur"
+ 
+  ]
+ 
+};
+ 
+function layNhomDiSan(d) {
+ 
+  return Object.keys(nhomDiSan).filter(nhom =>
+ 
+    nhomDiSan[nhom].some(ten =>
+ 
+      ten.toLocaleLowerCase("vi") ===
+ 
+      d.ten.toLocaleLowerCase("vi")
+ 
+    )
+ 
+  );
+ 
+}
+ 
+let map;
+ 
+let markers=[];
+ 
+let markerLayers={history:null,culture:null,education:null};
+ 
+let baseLayers={};
+ 
+let activeBase=null;
+ 
+let visibleIndices=[];
+ 
+let mapsReady=false;
+ 
+function categoryFor(d){
+ 
+  const n=(d.ten+" "+(d.tomTat||"")+" "+(d.nam||"")).toLocaleLowerCase("vi");
+ 
+  if(n.includes("trường")||n.includes("học")||n.includes("nội trú")) return "education";
+ 
+  if(n.includes("miếu")||n.includes("buôn")||n.includes("văn hóa")||n.includes("thờ")) return "culture";
+ 
+  return "history";
+ 
+}
+ 
+function googleMapsDaSanSang(){
+ 
+  // Tên hàm được giữ để tương thích, nhưng bản đồ hiện chạy bằng Leaflet.
+ 
+}
+ 
+function taoIconGhim(d,cat){
+  const g=layNhomDiSan(d);
+  let cls="pin-history",ic="🏛️";
+  if(cat==="education"){cls="pin-edu";ic="🎓";}
+  else if(g.includes("landscape")&&!g.includes("history")){cls="pin-landscape";ic="🏞️";}
+  else if(g.includes("history")){cls="pin-history";ic="🏛️";}
+  else {cls="pin-arch";ic="🏯";}
+  return L.divIcon({className:"pin-wrap",html:'<div class="pin '+cls+'"><span>'+ic+'</span></div>',iconSize:[38,38],iconAnchor:[19,46],popupAnchor:[0,-44]});
+}
+function khoiTaoBanDo(){
+ 
+  if(!window.L){
+ 
+    document.getElementById("gisMapState").textContent="Không tải được thư viện bản đồ";
+ 
+    document.getElementById("map").innerHTML='<div style="padding:20px">Không tải được Leaflet. Hãy kiểm tra kết nối Internet rồi tải lại trang.</div>';
+ 
+    return;
+ 
+  }
+ 
+  map=L.map("map",{zoomControl:true,scrollWheelZoom:true}).setView([12.82,108.12],8);
+ 
+  baseLayers.street=L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap contributors"});
+ 
+  activeBase=baseLayers.street;activeBase.addTo(map);
+ 
+  // LAYER CHE NHÃN - đặt phía trên bản đồ nền
+ 
+  map.createPane("coverTextPane");
+ 
+  map.getPane("coverTextPane").style.zIndex = 450;
+ 
+  const coverTextLayer = L.layerGroup().addTo(map);
+ 
+  // Vùng che thứ nhất - tọa độ mẫu, cần căn chỉnh
+ 
+L.rectangle(
+ 
+  [[16.25, 111.20], [18.25, 113.28]],
+ 
+  {
+ 
+    pane: "coverTextPane",
+ 
+    stroke: false,
+ 
+    fillColor: "#b5d2dc",
+ 
+    fillOpacity: 1,
+ 
+    interactive: false
+ 
+  }
+ 
+).addTo(coverTextLayer);
+ 
+  // Vùng che thứ hai - tọa độ mẫu, cần căn chỉnh
+ 
+L.rectangle(
+ 
+  [[8.15, 111.16], [10.15, 113.24]],
+ 
+  {
+ 
+    pane: "coverTextPane",
+ 
+    stroke: false,
+ 
+    fillColor: "#b5d2dc",
+ 
+    fillOpacity: 1,
+ 
+    interactive: false
+ 
+  }
+ 
+).addTo(coverTextLayer);
+ 
+  Object.keys(markerLayers).forEach(k=>markerLayers[k]=L.layerGroup().addTo(map));
+ 
+  markers=[];
+ 
+  diaDiems.forEach((d,index)=>{
+ 
+    const cat=categoryFor(d);
+ 
+    const marker=L.marker([d.toaDo.lat,d.toaDo.lng],{icon:taoIconGhim(d,cat)}).bindPopup(
+ 
+      `<div style="min-width:200px"><strong>${escapeHtml(d.ten)}</strong><p style="margin:7px 0">${escapeHtml(d.tomTat||"Hồ sơ địa điểm")}</p><button style="background:#6b4025;color:white;border:0;padding:8px 10px;border-radius:6px;cursor:pointer" onclick="moDiaDiem(${index})">Khám phá tư liệu</button><p style="margin:8px 0 0"><a target="_blank" rel="noopener" href="${taoLinkChiDuong(d)}">Chỉ đường bằng Google Maps</a></p></div>`
+ 
+    );
+ 
+    marker._heritageIndex=index;marker._heritageCategory=cat;
+ 
+    marker.addTo(markerLayers[cat]);markers.push(marker);
+ 
+  });
+ 
+  mapsReady=true;
+  visibleIndices=diaDiems.map((_, index)=>index);
+ 
+  document.getElementById("gisMapState").textContent="Bản đồ tương tác đã sẵn sàng";
+ 
+  document.getElementById("gisCount").textContent=diaDiems.length;
+ 
+  renderGISList();
+ 
+  zoomToAll();
+ 
+}
+ 
+function switchBase(which){
+ 
+  if(!map||!baseLayers[which])return;
+ 
+  if(activeBase)map.removeLayer(activeBase);
+ 
+  activeBase=baseLayers[which];activeBase.addTo(map);
+ 
+}
+ 
+function toggleCategory(category, on) {
+ 
+  if (!map || !markerLayers[category]) return;
+ 
+  if (on) {
+ 
+    map.addLayer(markerLayers[category]);
+ 
+  } else {
+ 
+    map.removeLayer(markerLayers[category]);
+ 
+  }
+ 
+  locLocFilter();
+ 
+}
+ 
+function kiemTraNhomDiSan(d) {
+ 
+  const chosen = new Set(Array.from(document.querySelectorAll('.heritage-filter:checked'), el => el.value));
+ 
+  return layNhomDiSan(d).some(group => chosen.has(group));
+ 
+}
+ 
+function locLocFilter() {
+ 
+  const search = document.getElementById('gisSearch');
+ 
+  const q = boDau((search ? search.value : '').trim()).toLowerCase();
+ 
+  visibleIndices = diaDiems.map((d,i)=>({d,i})).filter(({d}) => {
+ 
+    const content = boDau([d.ten,d.tomTat,d.moTa,d.nam].filter(Boolean).join(' ')).toLowerCase();
+ 
+    return content.includes(q) && kiemTraNhomDiSan(d);
+ 
+  }).map(({i})=>i);
+ 
+  markers.forEach((marker,i)=>{
+ 
+    const category = marker._heritageCategory;
+ 
+    const layer = markerLayers[category];
+ 
+    if (!layer) return;
+ 
+    const oldCheckbox = Array.from(document.querySelectorAll('.gis-filter input[onchange^="toggleCategory"]'))
+ 
+      .find(el => el.getAttribute('onchange').includes("'" + category + "'"));
+ 
+    const show = visibleIndices.includes(i) && (!oldCheckbox || oldCheckbox.checked);
+ 
+    if (show && !layer.hasLayer(marker)) layer.addLayer(marker);
+ 
+    if (!show && layer.hasLayer(marker)) layer.removeLayer(marker);
+ 
+  });
+ 
+  renderGISList();
+ 
+  updateVisibleCount();
+ 
+}
+ 
+function renderGISList(){
+ 
+  const list=document.getElementById("gisPlaceList");if(!list)return;
+ 
+const indices = visibleIndices;
+ 
+  list.innerHTML="";
+ 
+  indices.forEach(i=>{
+ 
+    const d=diaDiems[i];if(!d)return;
+ 
+    const b=document.createElement("button");b.className="gis-place";b.type="button";
+ 
+    b.innerHTML=`<strong>${escapeHtml(d.ten)}</strong><br><small>${escapeHtml(d.tomTat||"Mở hồ sơ địa điểm")}</small>`;
+ 
+    b.onclick=()=>{if(map){map.setView([d.toaDo.lat,d.toaDo.lng],15);markers[i].openPopup();}document.getElementById("map").scrollIntoView({behavior:"smooth",block:"start"});};
+ 
+    list.appendChild(b);
+ 
+  });
+ 
+  updateVisibleCount();
+ 
+}
+ 
+function updateVisibleCount(){
+ 
+  if(!map)return;
+ 
+  let n=0;
+ 
+  markers.forEach(m=>{if(map.hasLayer(markerLayers[m._heritageCategory])&&markerLayers[m._heritageCategory].hasLayer(m))n++;});
+ 
+  const el=document.getElementById("gisVisible");if(el)el.textContent=n;
+ 
+}
+ 
+function zoomToAll(){
+ 
+  if(!map||!diaDiems.length)return;
+ 
+  const bounds=L.latLngBounds(diaDiems.map(d=>[d.toaDo.lat,d.toaDo.lng]));
+ 
+  map.fitBounds(bounds.pad(.12));
+ 
+}
+ 
+function locateUser(){
+ 
+  if(!navigator.geolocation){alert("Trình duyệt không hỗ trợ xác định vị trí.");return;}
+ 
+  navigator.geolocation.getCurrentPosition(pos=>{
+ 
+    const lat=pos.coords.latitude,lng=pos.coords.longitude;
+ 
+    map.setView([lat,lng],14);
+ 
+    L.circleMarker([lat,lng],{radius:8,color:"#1467d2",fillColor:"#3c8cff",fillOpacity:.9}).addTo(map).bindPopup("Vị trí thiết bị của bạn").openPopup();
+ 
+  },()=>alert("Không lấy được vị trí. Bà hãy cho phép trình duyệt truy cập vị trí hoặc dùng nút Chỉ đường."));
+ 
+}
+ 
+function openVisibleDirections(){
+ 
+  const q=(document.getElementById("gisSearch").value||"").trim().toLocaleLowerCase("vi");
+ 
+  const d=diaDiems.find(x=>!q||x.ten.toLocaleLowerCase("vi").includes(q));
+ 
+  if(!d){alert("Bà hãy chọn hoặc tìm một địa điểm trước nha.");return;}
+ 
+  window.open(taoLinkChiDuong(d),"_blank","noopener");
+ 
+}
+ 
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+ 
+function taoLinkChiDuong(d){
+ 
+  return "https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(d.toaDo.lat+","+d.toaDo.lng)+"&destination_place_id=&travelmode=driving";
+ 
+}
+ 
+function veTheDiaDiem(){
+ 
+  const select=document.getElementById("diaDiemDongGop");
+ 
+  if(!select)return;
+ 
+  select.innerHTML="";
+ 
+  diaDiems.forEach(d=>{
+ 
+    const opt=document.createElement("option");opt.value=d.ten;opt.textContent=d.ten;select.append(opt);
+ 
+  });
+ 
+}
+ 
+function diToiDiaDiem(i){
+ 
+  const d=diaDiems[i];
+ 
+  if(mapsReady&&map){map.setView([d.toaDo.lat,d.toaDo.lng],15);markers[i].openPopup();document.getElementById("map").scrollIntoView({behavior:"smooth",block:"start"});}
+ 
+  else window.open("https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(d.toaDo.lat+","+d.toaDo.lng),"_blank","noopener");
+ 
+}
+ 
+function renderLoiKeVaAmThanh(d){
+ 
+  const container=document.getElementById("modalAudioContent");
+ 
+  container.replaceChildren();
+ 
+  let hasContent=false;
+ 
+  if(d.amThanh){
+ 
+    hasContent=true;
+ 
+    const card=document.createElement("article");
+ 
+    card.className="audio-item";
+ 
+    const title=document.createElement("h4");
+ 
+    title.textContent="🔊 Nghe bản ghi âm";
+ 
+    const audio=document.createElement("audio");
+ 
+    audio.controls=true;
+ 
+    audio.preload="metadata";
+ 
+    const source=document.createElement("source");
+ 
+    source.src=d.amThanh;
+ 
+    source.type = /\.wav(?:$|\?)/i.test(d.amThanh) ? "audio/wav" : /\.(m4a|mp4)(?:$|\?)/i.test(d.amThanh) ? "audio/mp4" : /\.ogg(?:$|\?)/i.test(d.amThanh) ? "audio/ogg" : "audio/mpeg";
+ 
+    audio.append(source);
+ 
+    audio.addEventListener("error",()=>{
+ 
+      let note=card.querySelector(".audio-error");
+ 
+      if(!note){note=document.createElement("p");note.className="audio-source audio-error";note.textContent="Chưa phát được tệp âm thanh. Hãy kiểm tra đường dẫn và định dạng tệp.";card.append(note);}
+ 
+    });
+ 
+    card.append(title,audio);
+ 
+    if(d.nguoiKe){const who=document.createElement("p");who.className="audio-source";who.textContent="Người kể: "+d.nguoiKe;card.append(who);}
+ 
+    if(d.amThanhNguon){const sourceNote=document.createElement("p");sourceNote.className="audio-source";sourceNote.textContent="Nguồn / ghi chú: "+d.amThanhNguon;card.append(sourceNote);}
+ 
+    container.append(card);
+ 
+  }
+ 
+  if(d.loiKe){
+ 
+    hasContent=true;
+ 
+    const card=document.createElement("article");
+ 
+    card.className="audio-item";
+ 
+    const title=document.createElement("h4");
+ 
+    title.textContent="📖 Đọc lời kể";
+ 
+    const details=document.createElement("details");
+ 
+    const summary=document.createElement("summary");
+ 
+    summary.textContent="Mở bản chép lời";
+ 
+    const transcript=document.createElement("p");
+ 
+    transcript.className="audio-transcript";
+ 
+    transcript.textContent=d.loiKe;
+ 
+    details.append(summary,transcript);
+ 
+    card.append(title,details);
+ 
+    if(d.nguoiKe){const who=document.createElement("p");who.className="audio-source";who.textContent="Người kể: "+d.nguoiKe;card.append(who);}
+ 
+    if(d.amThanhNguon){const sourceNote=document.createElement("p");sourceNote.className="audio-source";sourceNote.textContent="Nguồn / ghi chú: "+d.amThanhNguon;card.append(sourceNote);}
+ 
+    container.append(card);
+ 
+  }
+ 
+  if(!hasContent){
+ 
+    const empty=document.createElement("p");
+ 
+    empty.className="audio-empty";
+ 
+    empty.textContent="Hồ sơ này chưa có bản ghi âm hoặc lời kể. Nhóm dự án có thể bổ sung sau khi thu thập, xin phép người cung cấp và kiểm tra nguồn tư liệu.";
+ 
+    container.append(empty);
+ 
+  }
+ 
+}
+ 
+function previewHeritageMedia(event,targetId,type){
+ 
+  const box=document.getElementById(targetId);if(!box)return;
+ 
+  box.replaceChildren();
+ 
+  const files=[...(event.target.files||[])];
+ 
+  if(!files.length){box.textContent="Chừa chỗ bổ sung tư liệu";return;}
+ 
+  files.forEach(file=>{
+ 
+    const url=URL.createObjectURL(file);
+ 
+    let el;
+ 
+    if(type==="image"){el=document.createElement("img");el.alt=file.name;el.src=url;}
+ 
+    else if(type==="video"){el=document.createElement("video");el.controls=true;el.preload="metadata";el.src=url;}
+ 
+    else {el=document.createElement("audio");el.controls=true;el.preload="metadata";el.src=url;}
+ 
+    box.append(el);
+ 
+  });
+ 
+  const note=document.createElement("small");note.textContent="Bản xem trước trong trình duyệt; tệp chưa được lưu lên máy chủ.";box.append(note);
+ 
+}
+ 
+let diaDiemDangMo=null;
+ 
+function boDau(s){return String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/đ/g,"d").replace(/Đ/g,"D");}
+ 
+function boThe(s){return String(s||"").replace(/<[^>]*>/g,"").replace(/\s+/g," ").trim();}
+ 
+// Tách mô tả dài thành phần mở đầu + các mục (Tên gọi, Đặc điểm, Giá trị, Ý nghĩa, Truyền thuyết...)
+function tachMoTa(html){
+ 
+  const lines=String(html||"").replace(/<b\s*\/>/gi,"</b>").split(/\n+/).map(s=>s.trim()).filter(Boolean);
+ 
+  const re=/^(?:<b>\s*)?((?:Tên gọi|Đặc điểm|Giá trị|Ý nghĩa|Truyền thuyết|Truyền thống|Câu chuyện|Thực hành)[^:<：]{0,90}?)\s*(?:<\/b>)?\s*\.?\s*[:：]\s*(?:<\/b>)?\s*([\s\S]*)$/;
+ 
+  const intro=[],sections=[],seen=new Set();
+ 
+  lines.forEach(line=>{
+ 
+    const m=line.match(re);
+ 
+    if(!m){
+ 
+      if(sections.length)sections[sections.length-1].noiDung+="<br>"+line;
+ 
+      else intro.push(line);
+ 
+      return;
+ 
+    }
+ 
+    const noiDung=m[2].trim();
+ 
+    const khoa=boThe(noiDung).slice(0,200);
+ 
+    if(!noiDung||seen.has(khoa))return;   // bỏ đoạn bị lặp
+ 
+    seen.add(khoa);
+ 
+    sections.push({tieuDe:m[1].replace(/\s*\([^)]*\)/g,"").replace(/\s+/g," ").trim(),noiDung});
+ 
+  });
+ 
+  return {intro,sections};
+ 
+}
+ 
+function iconMuc(tieuDe){
+ 
+  const s=boDau(tieuDe).toLowerCase();
+ 
+  if(s.startsWith("ten goi"))return "🪶";
+ 
+  if(s.startsWith("dac diem"))return "⛰️";
+ 
+  if(s.startsWith("gia tri"))return "🌿";
+ 
+  if(s.startsWith("y nghia"))return "📜";
+ 
+  return "🔥";
+ 
+}
+ 
+function veMucMoTa(d){
+ 
+  const box=document.getElementById("modalSections"),introBox=document.getElementById("modalIntro");
+ 
+  box.replaceChildren();
+ 
+  const {intro,sections}=tachMoTa(d.moTa);
+ 
+  introBox.innerHTML=intro.join("<br>").replace(/<\/?b>/gi,"");
+ 
+  introBox.style.display=intro.length?"block":"none";
+ 
+  if(!sections.length&&!intro.length)return;
+ 
+  sections.forEach(s=>{
+ 
+    const det=document.createElement("details");det.className="acc";
+ 
+    const sum=document.createElement("summary");sum.textContent=iconMuc(s.tieuDe)+" "+s.tieuDe;
+ 
+    const body=document.createElement("div");body.className="acc-body";body.innerHTML=s.noiDung;
+ 
+    det.append(sum,body);box.append(det);
+ 
+  });
+ 
+}
+ 
+function veNguon(d){
+ 
+  const box=document.getElementById("modalInfo");
+ 
+  const links=[...new Set((String(d.nguon||"").match(/https?:\/\/[^\s,]+/g)||[]).map(u=>u.replace(/[.,;]+$/,"")))];
+ 
+  let html="<strong>📅 Thời gian / ghi chú:</strong> "+escapeHtml(boThe(d.nam))+"<br><strong>📍 Vị trí:</strong> "+escapeHtml(boThe(d.tomTat))+"<br><strong>📚 Nguồn tư liệu:</strong>";
+ 
+  if(links.length){
+ 
+    html+='<ol class="src-list">'+links.map(u=>{
+ 
+      let label=u;
+ 
+      try{const x=new URL(u);label=x.hostname.replace(/^www\./,"")+(x.pathname!=="/"?decodeURIComponent(x.pathname):"");}catch(e){}
+ 
+      if(label.length>70)label=label.slice(0,67)+"…";
+ 
+      return '<li><a href="'+escapeHtml(u)+'" target="_blank" rel="noopener">'+escapeHtml(label)+'</a></li>';
+ 
+    }).join("")+"</ol>";
+ 
+  }else html+=" "+escapeHtml(d.nguon||"Chưa có");
+ 
+  box.innerHTML=html;
+ 
+}
+ 
+function ghiChuRong(text,style){const p=document.createElement("p");p.className="audio-empty";if(style)p.style.cssText=style;p.textContent=text;return p;}
+ 
+// Nạp ảnh và video vào hồ sơ
+function napAnh(d){
+ 
+  const gallery=document.getElementById("modalGallery");gallery.replaceChildren();
+ 
+  const ds=[...new Set(d.anh||[])];
+ 
+  if(!ds.length){gallery.append(ghiChuRong("Chừa chỗ bổ sung hình ảnh di sản."));return;}
+ 
+  let loi=0;
+ 
+  ds.forEach(src=>{
+ 
+    const img=document.createElement("img");img.loading="lazy";img.alt=d.ten;
+ 
+    img.onerror=()=>{img.remove();loi++;if(loi===ds.length)gallery.append(ghiChuRong("Chưa tải được hình ảnh. Hãy kiểm tra lại tên tệp ảnh trong thư mục website."));};
+ 
+    img.title="Bấm để xem ảnh lớn";img.addEventListener("click",()=>moLightbox(img));img.src=src;gallery.append(img);
+ 
+  });
+ 
+}
+ 
+function napVideo(d){
+  const box=document.getElementById("modalVideo");box.replaceChildren();
+  const src=(d.video||"").trim();
+  if(!src){box.append(ghiChuRong("Chừa chỗ bổ sung video tư liệu cho hồ sơ này."));return;}
+
+  let youtubeId="";
+  try{
+    const url=new URL(src);
+    const host=url.hostname.toLowerCase().replace(/^www\./,"").replace(/^m\./,"");
+    if(host==="youtu.be") youtubeId=url.pathname.split("/")[1]||"";
+    else if(host==="youtube.com"){
+      const parts=url.pathname.split("/");
+      youtubeId=url.pathname==="/watch"?url.searchParams.get("v")||"":
+        (parts[1]==="shorts"||parts[1]==="embed"?parts[2]||"":"");
+    }
+  }catch(e){} // Đường dẫn tệp tương đối vẫn được phát bằng thẻ video.
+
+  if(/^[A-Za-z0-9_-]{11}$/.test(youtubeId)){
+    const frame=document.createElement("iframe");
+    frame.src="https://www.youtube.com/embed/"+youtubeId;
+    frame.title="Video tư liệu: "+d.ten;
+    frame.allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+    frame.allowFullscreen=true;
+    frame.referrerPolicy="strict-origin-when-cross-origin";
+    box.append(frame);
+    const link=document.createElement("a");
+    link.href="https://www.youtube.com/watch?v="+youtubeId;
+    link.target="_blank";link.rel="noopener noreferrer";
+    link.textContent="Xem video trên YouTube";
+    box.append(link);
+    return;
+  }
+  const v=document.createElement("video");v.controls=true;v.preload="metadata";
+  v.onerror=()=>{box.replaceChildren(ghiChuRong("Chưa tìm thấy tệp video hoặc định dạng chưa được hỗ trợ."));};
+  v.src=src;box.append(v);
+}
+
+function capNhatNutAcc(){
+ 
+  const all=[...document.querySelectorAll("#modalDiaDiem details.acc")];
+ 
+  const btn=document.getElementById("accToggleAll");
+ 
+  if(btn)btn.textContent=(all.length&&all.every(x=>x.open))?"▴ Thu gọn tất cả":"▾ Mở tất cả";
+ 
+}
+ 
+function toggleAllAcc(){
+ 
+  const all=[...document.querySelectorAll("#modalDiaDiem details.acc")];
+ 
+  const moHet=all.every(x=>x.open);
+ 
+  all.forEach(x=>{x.open=!moHet;});
+ 
+  capNhatNutAcc();
+ 
+}
+ 
+function moDiaDiem(index){
+ 
+  const d=diaDiems[index];if(!d)return;
+ 
+  diaDiemDangMo=d;
+
+  xoaAnhBinhLuanDangChon();veBinhLuan(d);
+ 
+  const modal=document.getElementById("modalDiaDiem");
+ 
+  document.getElementById("modalTitle").textContent=d.ten;
+ 
+  document.getElementById("modalSummary").textContent=d.tomTat?"📍 "+boThe(d.tomTat):"";
+ 
+  veMucMoTa(d);
+ 
+  renderLoiKeVaAmThanh(d);
+ 
+  veNguon(d);
+ 
+  napAnh(d);napVideo(d);
+ 
+  const soAnh=new Set(d.anh||[]).size;
+ 
+  document.getElementById("anhCount").textContent=soAnh?"("+soAnh+")":"(chưa có)";
+ 
+  document.getElementById("videoCount").textContent=d.video?"":"(chưa có)";
+ 
+  document.getElementById("audioCount").textContent=(d.amThanh||d.loiKe)?"":"(chưa có)";
+ 
+  document.getElementById("modalDirections").href=taoLinkChiDuong(d);
+ 
+  capNhatNutAcc();
+ 
+  modal.style.display="block";modal.scrollTop=0;document.body.style.overflow="hidden";
+ 
+}
+ 
+function dongModal(){
+ 
+  const m=document.getElementById("modalDiaDiem");
+ 
+  m.querySelectorAll("video,audio").forEach(x=>{try{x.pause();}catch(e){}});
+ 
+  document.getElementById("modalVideo").replaceChildren();
+ 
+  dongLightbox();m.style.display="none";document.body.style.overflow="";
+ 
+}
+ 
+document.addEventListener("toggle",e=>{
+ 
+  const el=e.target;
+ 
+  if(!el||!el.matches||!el.matches("#modalDiaDiem details.acc"))return;
+ 
+  
+ 
+  capNhatNutAcc();
+ 
+},true);
+ 
+let lbAnh=[],lbViTri=0;
+ 
+function hienLightbox(){
+ 
+  const n=lbAnh.length;
+ 
+  const img=document.getElementById("lbImg");
+ 
+  img.src=lbAnh[lbViTri]||"";
+ 
+  img.alt=diaDiemDangMo?diaDiemDangMo.ten:"";
+ 
+  document.getElementById("lbCount").textContent=n?(lbViTri+1)+" / "+n:"";
+ 
+  document.getElementById("lbPrev").style.display=n>1?"flex":"none";
+ 
+  document.getElementById("lbNext").style.display=n>1?"flex":"none";
+ 
+}
+ 
+function moLightbox(img,box){
+ 
+  lbAnh=[...(box||document.getElementById("modalGallery")).querySelectorAll("img")].map(i=>i.src);
+ 
+  lbViTri=Math.max(0,lbAnh.indexOf(img.src));
+ 
+  hienLightbox();
+ 
+  document.getElementById("lightbox").style.display="flex";
+ 
+}
+ 
+function lbChuyen(buoc){
+ 
+  if(lbAnh.length<2)return;
+ 
+  lbViTri=(lbViTri+buoc+lbAnh.length)%lbAnh.length;
+ 
+  hienLightbox();
+ 
+}
+ 
+function dongLightbox(){
+ 
+  const lb=document.getElementById("lightbox");
+ 
+  if(!lb)return;
+ 
+  lb.style.display="none";
+ 
+  document.getElementById("lbImg").removeAttribute("src");
+ 
+}
+ 
+document.addEventListener("keydown",e=>{
+ 
+  const lb=document.getElementById("lightbox");
+ 
+  if(!lb||lb.style.display!=="flex")return;
+ 
+  if(e.key==="Escape"){dongLightbox();e.stopPropagation();}
+ 
+  else if(e.key==="ArrowLeft"){lbChuyen(-1);e.stopPropagation();}
+ 
+  else if(e.key==="ArrowRight"){lbChuyen(1);e.stopPropagation();}
+ 
+},true);
+ 
+(function(){
+ 
+  const lb=document.getElementById("lightbox");let x0=null;
+ 
+  if(!lb)return;
+ 
+  lb.addEventListener("touchstart",e=>{x0=e.touches[0].clientX;},{passive:true});
+ 
+  lb.addEventListener("touchend",e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;x0=null;if(Math.abs(dx)>50)lbChuyen(dx<0?1:-1);},{passive:true});
+ 
+})();
+ 
+document.addEventListener("keydown",e=>{if(e.key==="Escape")dongModal();});
+ 
+function timDiaDiem(){
+ 
+  document.getElementById("gisSearch")?.focus();
+ 
+  document.getElementById("map")?.scrollIntoView({behavior:"smooth",block:"start"});
+ 
+}
+ 
+function addAIMessage(text,who){
+ 
+  const box=document.getElementById("aiMessages");
+ 
+  const div=document.createElement("div");div.className="ai-msg "+who;div.textContent=text;box.appendChild(div);box.scrollTop=box.scrollHeight;
+ 
+}
+ 
+async function askHeritageAI(event){
+ 
+  event.preventDefault();
+ 
+  const input=document.getElementById("aiQuestion"),q=input.value.trim();if(!q)return;
+ 
+  addAIMessage(q,"user");input.value="";
+ 
+  // If the site is later connected to a secure backend, this endpoint can call a real language model.
+ 
+  try{
+ 
+    const response=await fetch("/api/ask",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question:q,records:diaDiems.map(d=>({ten:d.ten,moTa:d.moTa,tomTat:d.tomTat,nam:d.nam,nguon:d.nguon,toaDo:d.toaDo}))})});
+ 
+    if(response.ok){
+ 
+      const data=await response.json();
+ 
+      addAIMessage((data.answer||"Chưa có câu trả lời.")+(data.sources?.length?"\n\nNguồn: "+data.sources.join(", "):""),"bot");return;
+ 
+    }
+ 
+  }catch(e){}
+ 
+  const lower=q.toLocaleLowerCase("vi");
+ 
+  const matches=diaDiems.filter(d=>(d.ten+" "+d.moTa+" "+d.tomTat+" "+d.nam).toLocaleLowerCase("vi").includes(lower) || lower.split(/\s+/).filter(w=>w.length>3).some(w=>(d.ten+" "+d.moTa+" "+d.tomTat).toLocaleLowerCase("vi").includes(w)));
+ 
+  if(matches.length){
+ 
+    addAIMessage("Mình tìm thấy "+matches.length+" hồ sơ phù hợp trong dữ liệu hiện có:\n\n"+matches.slice(0,4).map(d=>"• "+d.ten+"\n"+d.tomTat+"\nGhi chú: "+d.nam+"\nNguồn: "+d.nguon).join("\n\n")+"\n\nĐây là tra cứu theo dữ liệu cục bộ, chưa phải câu trả lời do mô hình AI tạo sinh. Hãy mở hồ sơ để đọc đầy đủ và kiểm tra nguồn.","bot");
+ 
+  }else{
+ 
+    addAIMessage("Mình chưa tìm thấy câu trả lời chắc chắn trong dữ liệu hiện có. Bà thử hỏi tên một địa điểm cụ thể nhé. Với thông tin lịch sử chưa có nguồn xác minh, website nên ghi rõ cần kiểm chứng thay vì tự suy đoán.\n\nLưu ý: để có AI tạo sinh thực sự, cần triển khai máy chủ ở endpoint /api/ask và lưu API key trong biến môi trường, không đặt khóa trong HTML.","bot");
+ 
+  }
+ 
+}
+ 
+function luuDongGop(){
+ 
+  const nguoi=document.getElementById("nguoiDongGop").value.trim();
+ 
+  const diaDiem=document.getElementById("diaDiemDongGop").value;
+ 
+  const tieuDe=document.getElementById("tieuDe").value.trim();
+ 
+  const noiDung=document.getElementById("noiDung").value.trim();
+ 
+  const nguon=document.getElementById("nguon").value.trim();
+ 
+  if(!nguoi||!tieuDe||!noiDung){alert("⚠️ Bà hãy điền tên, tiêu đề và nội dung!");return;}
+ 
+  const files=[...document.getElementById("hinhAnhUpload").files].map(f=>f.name);
+ 
+  const video=document.getElementById("videoUpload").files[0]?.name||"Không có";
+ 
+  const audio=document.getElementById("audioUpload").files[0]?.name||"Không có";
+ 
+  alert("Đã nhập thông tin đóng góp (bản demo trên trình duyệt).\n\nNgười đóng góp: "+nguoi+"\nĐịa điểm: "+diaDiem+"\nTiêu đề: "+tieuDe+"\nTệp ảnh: "+(files.join(", ")||"Không có")+"\nVideo: "+video+"\nÂm thanh/lời kể: "+audio+"\nNguồn: "+(nguon||"Chưa cung cấp")+"\n\nLưu ý: để nhận và lưu tư liệu thật, website cần được kết nối máy chủ.");
+ 
+  document.getElementById("tieuDe").value="";document.getElementById("noiDung").value="";document.getElementById("nguon").value="";
+ 
+}
+ 
+const BL_TOI_DA_ANH=4,BL_TOI_DA_MB=5;
+
+let anhBinhLuanChon=[];            // ảnh đang chọn, chưa gửi
+
+const binhLuanTheoDiaDiem={};      // bình luận của từng địa điểm (chỉ lưu trong trang đang mở)
+
+function veXemTruocAnhBinhLuan(){
+
+  const box=document.getElementById("previewAnhBinhLuan");box.replaceChildren();
+
+  anhBinhLuanChon.forEach((f,i)=>{
+
+    const w=document.createElement("div");w.className="cmt-thumb";
+
+    const img=document.createElement("img");img.src=f.url;img.alt=f.file.name;
+
+    const x=document.createElement("button");x.type="button";x.textContent="×";x.title="Bỏ ảnh này";x.setAttribute("aria-label","Bỏ ảnh "+f.file.name);
+
+    x.onclick=()=>{URL.revokeObjectURL(f.url);anhBinhLuanChon.splice(i,1);veXemTruocAnhBinhLuan();};
+
+    w.append(img,x);box.append(w);
+
+  });
+
+}
+
+function chonAnhBinhLuan(input){
+
+  const loi=[];
+
+  [...input.files].forEach(file=>{
+
+    if(!/^image\/(jpeg|png|webp)$/.test(file.type)){loi.push(file.name+": chỉ nhận ảnh JPG, PNG, WEBP");return;}
+
+    if(file.size>BL_TOI_DA_MB*1024*1024){loi.push(file.name+": lớn hơn "+BL_TOI_DA_MB+" MB");return;}
+
+    if(anhBinhLuanChon.length>=BL_TOI_DA_ANH){loi.push(file.name+": chỉ được đính kèm tối đa "+BL_TOI_DA_ANH+" ảnh");return;}
+
+    anhBinhLuanChon.push({file,url:URL.createObjectURL(file)});
+
+  });
+
+  input.value="";
+
+  veXemTruocAnhBinhLuan();
+
+  if(loi.length)alert("⚠️ Một số ảnh chưa được thêm:\n\n"+loi.join("\n"));
+
+}
+
+function xoaAnhBinhLuanDangChon(){
+
+  anhBinhLuanChon.forEach(f=>URL.revokeObjectURL(f.url));
+
+  anhBinhLuanChon=[];veXemTruocAnhBinhLuan();
+
+}
+
+function taoPhanTuBinhLuan(c){
+
+  const div=document.createElement("div");div.className="comment";
+
+  const strong=document.createElement("strong");strong.textContent=c.ten;
+
+  const time=document.createElement("span");time.className="cmt-time";time.textContent=c.gio;
+
+  div.append(strong,time);
+
+  if(c.noiDung){const p=document.createElement("p");p.textContent=c.noiDung;div.append(p);}
+
+  if(c.anh&&c.anh.length){
+
+    const imgs=document.createElement("div");imgs.className="cmt-imgs";
+
+    c.anh.forEach(u=>{const im=document.createElement("img");im.src=u;im.alt="Ảnh đính kèm của "+c.ten;im.loading="lazy";im.addEventListener("click",()=>moLightbox(im,imgs));imgs.append(im);});
+
+    div.append(imgs);
+
+  }
+
+  return div;
+
+}
+
+function veBinhLuan(d){
+
+  const list=document.getElementById("danhSachBinhLuan");list.replaceChildren();
+
+  const ds=(d&&binhLuanTheoDiaDiem[d.ten])||[];
+
+  if(!ds.length){
+
+    const mac=document.createElement("div");mac.className="comment";
+
+    const s=document.createElement("strong");s.textContent="Khách tham quan";
+
+    const p=document.createElement("p");p.textContent="Hãy chia sẻ cảm nhận hoặc đặt câu hỏi về tư liệu di sản này.";
+
+    mac.append(s,p);list.append(mac);return;
+
+  }
+
+  ds.forEach(c=>list.append(taoPhanTuBinhLuan(c)));
+
+}
+
+function themBinhLuan(){
+
+  const ten=document.getElementById("tenBinhLuan").value.trim(),noiDung=document.getElementById("noiDungBinhLuan").value.trim();
+
+  if(!ten){alert("⚠️ Hãy nhập tên của bạn!");return;}
+
+  if(!noiDung&&!anhBinhLuanChon.length){alert("⚠️ Hãy viết bình luận hoặc thêm ít nhất một hình ảnh!");return;}
+
+  const khoa=diaDiemDangMo?diaDiemDangMo.ten:"";
+
+  const c={ten,noiDung,anh:anhBinhLuanChon.map(f=>f.url),gio:new Date().toLocaleString("vi-VN")};
+
+  (binhLuanTheoDiaDiem[khoa]=binhLuanTheoDiaDiem[khoa]||[]).push(c);
+
+  anhBinhLuanChon=[];            // ảnh đã chuyển vào bình luận, không thu hồi URL
+
+  veXemTruocAnhBinhLuan();veBinhLuan(diaDiemDangMo);
+
+  document.getElementById("tenBinhLuan").value="";document.getElementById("noiDungBinhLuan").value="";
+
+}
+
+function veDauTrang(){window.scrollTo({top:0,behavior:"smooth"});}
+ 
+veTheDiaDiem();
+ 
+</script>
+ 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+ 
+<script>
+ 
+khoiTaoBanDo();
+ 
+</script>
+<script>
+(function(){
+  const input=document.getElementById('gisSearch'),box=document.getElementById('gisSuggestions');
+  if(!input||!box)return;
+  function dong(){box.style.display='none';box.replaceChildren();}
+  input.addEventListener('input',()=>{
+    locLocFilter();
+    const kw=boDau(input.value.trim()).toLowerCase();
+    if(!kw){dong();return;}
+    const ds=diaDiems.map((d,i)=>({d,i,ten:boDau(d.ten).toLowerCase()}))
+      .filter(x=>x.ten.includes(kw))
+      .sort((a,b)=>(a.ten.startsWith(kw)?0:1)-(b.ten.startsWith(kw)?0:1))
+      .slice(0,6);
+    box.replaceChildren();
+    if(!ds.length){box.style.display='none';return;}
+    ds.forEach(({d,i})=>{
+      const row=document.createElement('div');
+      row.className='gis-suggest-item';
+      row.textContent='🔍 '+d.ten;
+      row.addEventListener('click',()=>{input.value=d.ten;dong();locLocFilter();diToiDiaDiem(i);});
+      box.append(row);
+    });
+    box.style.display='block';
+  });
+  document.addEventListener('click',e=>{if(e.target!==input&&!box.contains(e.target))dong();});
+})();
+ 
+</script>
+<style>
+  .site-footer {
+    background: var(--dark);
+    color: #f3e9dc;
+    margin-top: 40px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .footer-grid {
+    max-width: 1200px;
+    margin: auto;
+    padding: 36px 24px 24px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 24px;
+    text-align: left;
+  }
+  .site-footer h4 {
+    color: #fff;
+    font-size: 16px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #ffffff26;
+    padding-bottom: 6px;
+  }
+  .site-footer ul {
+    list-style: none;
+    padding: 0;
+  }
+  .site-footer li {
+    margin-bottom: 6px;
+  }
+  .site-footer a {
+    color: #e6d5c1;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .site-footer a:hover {
+    color: #fff;
+    text-decoration: underline;
+  }
+  .footer-bottom {
+    background: #422514;
+    text-align: center;
+    padding: 14px 20px;
+    font-size: 13px;
+    color: #d8c4ae;
+  }
+</style>
+ 
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div>
+      <h4>🪘 Bản đồ di sản sống Tây Nguyên</h4>
+      <p>Dự án Nghiên cứu Khoa học Kỹ thuật – Số hóa ký ức lịch sử, không gian thực hành văn hóa và di sản phi vật thể Đắk Lắk.</p>
+      <p style="margin-top:8px"><strong>Đơn vị:</strong> Nhóm nghiên cứu KHKT</p>
+    </div>
+ 
+    <div>
+      <h4>🧭 Khám phá nhanh</h4>
+      <ul>
+        <li><a onclick="veDauTrang()">Trang chủ</a></li>
+        <li><a onclick="document.getElementById('map').scrollIntoView({behavior:'smooth'})">Bản đồ không gian di sản</a></li>
+        <li><a onclick="document.getElementById('gioi-thieu').scrollIntoView({behavior:'smooth'})">Giới thiệu dự án</a></li>
+        <li><a onclick="document.getElementById('tro-ly-ai').scrollIntoView({behavior:'smooth'})">Trợ lý AI hỏi đáp</a></li>
+        <li><a onclick="document.getElementById('dong-gop').scrollIntoView({behavior:'smooth'})">Đóng góp tư liệu</a></li>
+      </ul>
+    </div>
+ 
+    <div>
+      <h4>📚 Nguồn tư liệu tham chiếu</h4>
+      <ul>
+        <li><a href="https://daklakmuseum.vn" target="_blank" rel="noopener">Bảo tàng Đắk Lắk</a></li>
+        <li><a href="https://vhttdl.daklak.gov.vn" target="_blank" rel="noopener">Sở VH, TT & DL Đắk Lắk</a></li>
+        <li><a href="http://dulichdaklak.gov.vn" target="_blank" rel="noopener">Cổng Du lịch Đắk Lắk</a></li>
+        <li>Tư liệu điền dã & lời kể cộng đồng</li>
+      </ul>
+    </div>
+ 
+    <div>
+      <h4>📩 Liên hệ & Đóng góp</h4>
+      <p>📍 Tỉnh Đắk Lắk, Việt Nam</p>
+      <p>✉️ Email:khamlaokhun@gmail.com,
+                            yunaienuol@gmail.com</p>
+      <p style="margin-top:6px;font-size:13px;color:#d6c3ad">Website phục vụ mục đích nghiên cứu khoa học, giáo dục và bảo tồn giá trị di sản văn hóa.</p>
+    </div>
+  </div>
+ 
+  <div class="footer-bottom">
+    © 2026 Bản đồ Ký ức – Dự án Nghiên cứu Khoa học Kỹ thuật. Phát triển vì cộng đồng và di sản Tây Nguyên.
+  </div>
+</footer>
+ 
+</body>
+ 
+</html>
+ 
