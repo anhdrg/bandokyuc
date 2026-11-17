@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Noto+Serif:wght@600;700;800&display=swap" rel="stylesheet">
  
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<link rel="stylesheet" href="https://unpkg.com/trackasia-gl@2.0.1/dist/trackasia-gl.css">
  
 <title>BẢN ĐỒ SỐ HÓA KÝ ỨC LỊCH SỬ ĐẮK LẮK</title>
  
@@ -160,7 +160,7 @@ footer{background:var(--dark);color:white;text-align:center;padding:24px;margin-
  
 .map-status{padding:8px 12px;background:#f8fbf9;color:#566b60;font-size:12px}
  
-.leaflet-popup-content-wrapper{border-radius:10px}
+.trackasiagl-popup-content{border-radius:10px}
  
 .gis-place-list{display:grid;gap:7px;margin-top:8px}
  
@@ -292,10 +292,10 @@ nav button:hover::after{transform:scaleX(1)}
 .map-status{background:#fbf1dc;color:#6b5a45;font-size:13px;padding:10px 14px;border-top:1px solid var(--line)}
 .lg{display:inline-flex;align-items:center;gap:5px;margin:4px 12px 0 0;font-weight:600;color:#4a3a2a}
 .lg i{width:12px;height:12px;border-radius:50%;display:inline-block;border:2px solid #fff;box-shadow:0 0 0 1px #0003}
-.leaflet-popup-content-wrapper{border-radius:12px;border-top:4px solid var(--gold);font-family:var(--sans)}
-.leaflet-popup-content strong{font-family:var(--serif);color:var(--basalt)}
-.leaflet-popup-content button{background:var(--brown)!important;font-family:var(--sans);font-weight:600}
-.leaflet-popup-content a{color:var(--forest);font-weight:600}
+.trackasiagl-popup-content{border-radius:12px;border-top:4px solid var(--gold);font-family:var(--sans)}
+.trackasiagl-popup-content strong{font-family:var(--serif);color:var(--basalt)}
+.trackasiagl-popup-content button{background:var(--brown)!important;font-family:var(--sans);font-weight:600}
+.trackasiagl-popup-content a{color:var(--forest);font-weight:600}
  
 /* Ghim bản đồ */
 .pin-wrap{background:none!important;border:0!important}
@@ -515,7 +515,7 @@ footer.site-footer::before{content:"";display:block;height:14px;background:var(-
  
         <h3>🗺️ Nền bản đồ</h3>
  
-        <label class="gis-filter">🗺️ Bản đồ đường phố (nền duy nhất)</label>
+        <label class="gis-filter">🗺️ Bản đồ đường phố TrackAsia</label>
  
         <h3>📍 Danh sách nhanh</h3>
  
@@ -1648,12 +1648,6 @@ function categoryFor(d){
  
 }
  
-function googleMapsDaSanSang(){
- 
-  // Tên hàm được giữ để tương thích, nhưng bản đồ hiện chạy bằng Leaflet.
- 
-}
- 
 function taoIconGhim(d,cat){
   const g=layNhomDiSan(d);
   let cls="pin-history",ic="🏛️";
@@ -1661,139 +1655,41 @@ function taoIconGhim(d,cat){
   else if(g.includes("landscape")&&!g.includes("history")){cls="pin-landscape";ic="🏞️";}
   else if(g.includes("history")){cls="pin-history";ic="🏛️";}
   else {cls="pin-arch";ic="🏯";}
-  return L.divIcon({className:"pin-wrap",html:'<div class="pin '+cls+'"><span>'+ic+'</span></div>',iconSize:[38,38],iconAnchor:[19,46],popupAnchor:[0,-44]});
+  const el=document.createElement("button");
+  el.type="button";el.className="pin-wrap";el.setAttribute("aria-label",d.ten);
+  el.innerHTML='<div class="pin '+cls+'"><span>'+ic+'</span></div>';
+  return el;
 }
 function khoiTaoBanDo(){
- 
-  if(!window.L){
- 
-    document.getElementById("gisMapState").textContent="Không tải được thư viện bản đồ";
- 
-    document.getElementById("map").innerHTML='<div style="padding:20px">Không tải được Leaflet. Hãy kiểm tra kết nối Internet rồi tải lại trang.</div>';
- 
+  if(!window.trackasiagl){
+    document.getElementById("gisMapState").textContent="Không tải được thư viện bản đồ TrackAsia";
+    document.getElementById("map").textContent="Không tải được bản đồ. Hãy kiểm tra kết nối Internet rồi tải lại trang.";
     return;
- 
   }
- 
-  map=L.map("map",{zoomControl:true,scrollWheelZoom:true}).setView([12.82,108.12],8);
- 
-  baseLayers.street=L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap contributors"});
- 
-  activeBase=baseLayers.street;activeBase.addTo(map);
- 
-  // LAYER CHE NHÃN - đặt phía trên bản đồ nền
- 
-  map.createPane("coverTextPane");
- 
-  map.getPane("coverTextPane").style.zIndex = 450;
- 
-  const coverTextLayer = L.layerGroup().addTo(map);
- 
-  // Vùng che thứ nhất - tọa độ mẫu, cần căn chỉnh
- 
-L.rectangle(
- 
-  [[16.25, 111.20], [18.25, 113.28]],
- 
-  {
- 
-    pane: "coverTextPane",
- 
-    stroke: false,
- 
-    fillColor: "#b5d2dc",
- 
-    fillOpacity: 1,
- 
-    interactive: false
- 
+  try {
+    map=new trackasiagl.Map({container:"map",style:"https://maps.track-asia.com/styles/v2/streets.json?key=a5316ef175c5e070689a17949282825c1e",center:[108.12,12.82],zoom:8});
+    map.addControl(new trackasiagl.NavigationControl(),"top-right");
+    map.on("load",()=>{document.getElementById("gisMapState").textContent="Bản đồ TrackAsia đã sẵn sàng";});
+    map.on("error",()=>{document.getElementById("gisMapState").textContent="Không tải được bản đồ TrackAsia. Hãy kiểm tra API key và tên miền.";});
+    markers=diaDiems.map((d,index)=>{
+      const cat=categoryFor(d);
+      const popup=new trackasiagl.Popup({offset:25}).setHTML(
+        `<div style="min-width:200px"><strong>${escapeHtml(d.ten)}</strong><p style="margin:7px 0">${escapeHtml(d.tomTat||"Hồ sơ địa điểm")}</p><button style="background:#6b4025;color:white;border:0;padding:8px 10px;border-radius:6px;cursor:pointer" onclick="moDiaDiem(${index})">Khám phá tư liệu</button><p style="margin:8px 0 0"><a target="_blank" rel="noopener" href="${taoLinkChiDuong(d)}">Chỉ đường bằng Google Maps</a></p></div>`
+      );
+      const marker=new trackasiagl.Marker({element:taoIconGhim(d,cat),anchor:"bottom"}).setLngLat([d.toaDo.lng,d.toaDo.lat]).setPopup(popup).addTo(map);
+      marker._heritageIndex=index;marker._heritageCategory=cat;marker._visible=true;
+      return marker;
+    });
+    mapsReady=true;visibleIndices=diaDiems.map((_,index)=>index);
+    document.getElementById("gisCount").textContent=diaDiems.length;
+    renderGISList();zoomToAll();
+  } catch(e) {
+    document.getElementById("gisMapState").textContent="Không thể khởi tạo bản đồ TrackAsia";
   }
- 
-).addTo(coverTextLayer);
- 
-  // Vùng che thứ hai - tọa độ mẫu, cần căn chỉnh
- 
-L.rectangle(
- 
-  [[8.15, 111.16], [10.15, 113.24]],
- 
-  {
- 
-    pane: "coverTextPane",
- 
-    stroke: false,
- 
-    fillColor: "#b5d2dc",
- 
-    fillOpacity: 1,
- 
-    interactive: false
- 
-  }
- 
-).addTo(coverTextLayer);
- 
-  Object.keys(markerLayers).forEach(k=>markerLayers[k]=L.layerGroup().addTo(map));
- 
-  markers=[];
- 
-  diaDiems.forEach((d,index)=>{
- 
-    const cat=categoryFor(d);
- 
-    const marker=L.marker([d.toaDo.lat,d.toaDo.lng],{icon:taoIconGhim(d,cat)}).bindPopup(
- 
-      `<div style="min-width:200px"><strong>${escapeHtml(d.ten)}</strong><p style="margin:7px 0">${escapeHtml(d.tomTat||"Hồ sơ địa điểm")}</p><button style="background:#6b4025;color:white;border:0;padding:8px 10px;border-radius:6px;cursor:pointer" onclick="moDiaDiem(${index})">Khám phá tư liệu</button><p style="margin:8px 0 0"><a target="_blank" rel="noopener" href="${taoLinkChiDuong(d)}">Chỉ đường bằng Google Maps</a></p></div>`
- 
-    );
- 
-    marker._heritageIndex=index;marker._heritageCategory=cat;
- 
-    marker.addTo(markerLayers[cat]);markers.push(marker);
- 
-  });
- 
-  mapsReady=true;
-  visibleIndices=diaDiems.map((_, index)=>index);
- 
-  document.getElementById("gisMapState").textContent="Bản đồ tương tác đã sẵn sàng";
- 
-  document.getElementById("gisCount").textContent=diaDiems.length;
- 
-  renderGISList();
- 
-  zoomToAll();
- 
 }
- 
-function switchBase(which){
- 
-  if(!map||!baseLayers[which])return;
- 
-  if(activeBase)map.removeLayer(activeBase);
- 
-  activeBase=baseLayers[which];activeBase.addTo(map);
- 
-}
- 
-function toggleCategory(category, on) {
- 
-  if (!map || !markerLayers[category]) return;
- 
-  if (on) {
- 
-    map.addLayer(markerLayers[category]);
- 
-  } else {
- 
-    map.removeLayer(markerLayers[category]);
- 
-  }
- 
-  locLocFilter();
- 
-}
- 
+function switchBase(which){}
+function toggleCategory(category,on){locLocFilter();}
+
 function kiemTraNhomDiSan(d) {
  
   const chosen = new Set(Array.from(document.querySelectorAll('.heritage-filter:checked'), el => el.value));
@@ -1817,25 +1713,14 @@ function locLocFilter() {
   }).map(({i})=>i);
  
   markers.forEach((marker,i)=>{
- 
-    const category = marker._heritageCategory;
- 
-    const layer = markerLayers[category];
- 
-    if (!layer) return;
- 
-    const oldCheckbox = Array.from(document.querySelectorAll('.gis-filter input[onchange^="toggleCategory"]'))
- 
-      .find(el => el.getAttribute('onchange').includes("'" + category + "'"));
- 
-    const show = visibleIndices.includes(i) && (!oldCheckbox || oldCheckbox.checked);
- 
-    if (show && !layer.hasLayer(marker)) layer.addLayer(marker);
- 
-    if (!show && layer.hasLayer(marker)) layer.removeLayer(marker);
- 
+    const category=marker._heritageCategory;
+    const checkbox=Array.from(document.querySelectorAll('.gis-filter input[onchange^="toggleCategory"]'))
+      .find(el=>el.getAttribute('onchange').includes("'"+category+"'"));
+    const show=visibleIndices.includes(i)&&(!checkbox||checkbox.checked);
+    if(show&&!marker._visible){marker.addTo(map);marker._visible=true;}
+    if(!show&&marker._visible){marker.remove();marker._visible=false;}
   });
- 
+
   renderGISList();
  
   updateVisibleCount();
@@ -1858,7 +1743,7 @@ const indices = visibleIndices;
  
     b.innerHTML=`<strong>${escapeHtml(d.ten)}</strong><br><small>${escapeHtml(d.tomTat||"Mở hồ sơ địa điểm")}</small>`;
  
-    b.onclick=()=>{if(map){map.setView([d.toaDo.lat,d.toaDo.lng],15);markers[i].openPopup();}document.getElementById("map").scrollIntoView({behavior:"smooth",block:"start"});};
+    b.onclick=()=>{if(map){map.flyTo({center:[d.toaDo.lng,d.toaDo.lat],zoom:15});if(markers[i]&&markers[i]._visible&&!markers[i].getPopup().isOpen())markers[i].togglePopup();}document.getElementById("map").scrollIntoView({behavior:"smooth",block:"start"});};
  
     list.appendChild(b);
  
@@ -1869,43 +1754,28 @@ const indices = visibleIndices;
 }
  
 function updateVisibleCount(){
- 
-  if(!map)return;
- 
-  let n=0;
- 
-  markers.forEach(m=>{if(map.hasLayer(markerLayers[m._heritageCategory])&&markerLayers[m._heritageCategory].hasLayer(m))n++;});
- 
-  const el=document.getElementById("gisVisible");if(el)el.textContent=n;
- 
+  const el=document.getElementById("gisVisible");if(el)el.textContent=markers.filter(m=>m._visible).length;
 }
- 
 function zoomToAll(){
- 
   if(!map||!diaDiems.length)return;
- 
-  const bounds=L.latLngBounds(diaDiems.map(d=>[d.toaDo.lat,d.toaDo.lng]));
- 
-  map.fitBounds(bounds.pad(.12));
- 
+  const bounds=new trackasiagl.LngLatBounds();
+  diaDiems.forEach(d=>bounds.extend([d.toaDo.lng,d.toaDo.lat]));
+  map.fitBounds(bounds,{padding:40,maxZoom:14});
 }
- 
+let userLocationMarker;
 function locateUser(){
- 
   if(!navigator.geolocation){alert("Trình duyệt không hỗ trợ xác định vị trí.");return;}
- 
   navigator.geolocation.getCurrentPosition(pos=>{
- 
-    const lat=pos.coords.latitude,lng=pos.coords.longitude;
- 
-    map.setView([lat,lng],14);
- 
-    L.circleMarker([lat,lng],{radius:8,color:"#1467d2",fillColor:"#3c8cff",fillOpacity:.9}).addTo(map).bindPopup("Vị trí thiết bị của bạn").openPopup();
- 
-  },()=>alert("Không lấy được vị trí. Bà hãy cho phép trình duyệt truy cập vị trí hoặc dùng nút Chỉ đường."));
- 
+    if(!map)return;
+    const lng=pos.coords.longitude,lat=pos.coords.latitude;
+    map.flyTo({center:[lng,lat],zoom:14});
+    if(userLocationMarker)userLocationMarker.remove();
+    userLocationMarker=new trackasiagl.Marker({color:"#1467d2"}).setLngLat([lng,lat])
+      .setPopup(new trackasiagl.Popup().setText("Vị trí thiết bị của bạn")).addTo(map);
+    userLocationMarker.togglePopup();
+  },()=>alert("Không lấy được vị trí. Hãy cho phép trình duyệt truy cập vị trí hoặc dùng nút Chỉ đường."));
 }
- 
+
 function openVisibleDirections(){
  
   const q=(document.getElementById("gisSearch").value||"").trim().toLocaleLowerCase("vi");
@@ -1946,7 +1816,7 @@ function diToiDiaDiem(i){
  
   const d=diaDiems[i];
  
-  if(mapsReady&&map){map.setView([d.toaDo.lat,d.toaDo.lng],15);markers[i].openPopup();document.getElementById("map").scrollIntoView({behavior:"smooth",block:"start"});}
+  if(mapsReady&&map){map.flyTo({center:[d.toaDo.lng,d.toaDo.lat],zoom:15});if(markers[i]&&markers[i]._visible&&!markers[i].getPopup().isOpen())markers[i].togglePopup();document.getElementById("map").scrollIntoView({behavior:"smooth",block:"start"});}
  
   else window.open("https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(d.toaDo.lat+","+d.toaDo.lng),"_blank","noopener");
  
@@ -2645,7 +2515,7 @@ veTheDiaDiem();
  
 </script>
  
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="https://unpkg.com/trackasia-gl@2.0.1/dist/trackasia-gl.js"></script>
  
 <script>
  
